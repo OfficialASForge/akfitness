@@ -1,0 +1,17 @@
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  padding:0;
+  background:#0f0f0f;
+  color:white;
+  overflow-x:hidden;
+}
+
+#root{
+  width:100%;
+}
