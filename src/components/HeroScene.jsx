@@ -38,7 +38,7 @@ function FireParticles() {
 
   return (
     <group ref={group}>
-      {Array.from({ length: 40 }).map((_, i) => (
+      {Array.from({ length: 15 }).map((_, i) => (
         <mesh
           key={i}
           position={[
@@ -60,8 +60,10 @@ function CameraMotion() {
   useFrame((state) => {
     const t = state.clock.elapsedTime;
 
-    state.camera.position.x = Math.sin(t * 0.25) * 0.18;
-    state.camera.position.y = 0.55 + Math.sin(t * 0.5) * 0.05;
+    state.camera.position.x =
+    Math.sin(t*0.15)*0.08;
+    state.camera.position.y =
+    0.55+Math.sin(t*0.25)*0.02;
 
     state.camera.lookAt(0, 0.25, 0);
   });
@@ -211,9 +213,7 @@ function Fighter() {
       first.fadeIn(0.5);
       first.play();
     }
-    scene.traverse((child) => {
-    console.log(child.name, child.type);
-    });
+    
   }, [actions]);
 
   useFrame((state) => {
@@ -242,15 +242,16 @@ function Fighter() {
 export default function HeroScene() {
   return (
     <Canvas
-      shadows
-      dpr={[1, 2]}
+      shadows={false}
+      dpr={[1]}
       camera={{
         position: [0, 0.45, 6.2],
         fov: 38,
       }}
       gl={{
-        alpha: true,
-        antialias: true,
+       alpha: true,
+       antialias: false,
+       powerPreference: "high-performance"
       }}
     >
       <ambientLight intensity={0.4} color="#ffffff" />
@@ -283,19 +284,19 @@ export default function HeroScene() {
       />
 
       <Stars
-        radius={100}
-        depth={60}
-        count={2500}
-        factor={4}
+        radius={50}
+        depth={30}
+        count={600}
+        factor={3}
         fade
-        speed={0.4}
+        speed={0.2}
       />
 
       <Sparkles
-        count={18}
-        scale={7}
-        size={2}
-        speed={0.1}
+        count={8}
+        scale={5}
+        size={1.5}
+        speed={0.05}
       />
 
       <FireParticles />
@@ -316,20 +317,6 @@ export default function HeroScene() {
       <AuraGlow />
       <Fighter />
       
-
-      <EffectComposer>
-       <Bloom
-        intensity={0.9}
-        luminanceThreshold={0.18}
-        luminanceSmoothing={0.9}
-       />
-      </EffectComposer>
-
-      <OrbitControls
-        enableZoom={false}
-        enablePan={false}
-        enableRotate={false}
-      />
     </Canvas>
   );
 }
