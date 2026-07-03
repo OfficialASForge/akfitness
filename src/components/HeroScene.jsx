@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   OrbitControls,
   Float,
@@ -240,10 +240,25 @@ function Fighter() {
   );
 }
 export default function HeroScene() {
+
+  const [isMobile, setIsMobile] = useState(false);
+
+useEffect(() => {
+  const checkMobile = () => {
+    setIsMobile(window.innerWidth <= 768);
+  };
+
+  checkMobile();
+
+  window.addEventListener("resize", checkMobile);
+
+  return () => window.removeEventListener("resize", checkMobile);
+}, []);
+
   return (
     <Canvas
       shadows={false}
-      dpr={[1]}
+      dpr={isMobile ? 0.8 : 1.5}
       camera={{
         position: [0, 0.45, 6.2],
         fov: 38,
@@ -251,7 +266,7 @@ export default function HeroScene() {
       gl={{
        alpha: true,
        antialias: false,
-       powerPreference: "high-performance"
+       powerPreference: "high-performance",
       }}
     >
       <ambientLight intensity={0.4} color="#ffffff" />
@@ -286,20 +301,20 @@ export default function HeroScene() {
       <Stars
         radius={50}
         depth={30}
-        count={600}
+        count={isMobile ? 250 : 900}
         factor={3}
         fade
         speed={0.2}
       />
 
       <Sparkles
-        count={8}
+        count={isMobile ? 4 : 12}
         scale={5}
         size={1.5}
         speed={0.05}
       />
 
-      <FireParticles />
+      {!isMobile && <FireParticles />}
 
       <EnergyBall
         position={[-3, 2, -2]}
