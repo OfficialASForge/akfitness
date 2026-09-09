@@ -52,14 +52,13 @@ body {
 .navbar-scrolled{
   top:10px;
   padding:14px 35px;
-  background:rgba(8,8,8,.75);
-  backdrop-filter:blur(28px);
-  -webkit-backdrop-filter:blur(28px);
+  background:rgba(10,10,10,0.9);
+  backdrop-filter:blur(15px);
+  -webkit-backdrop-filter:blur(15px);
 
   box-shadow:
-    0 15px 40px rgba(0,0,0,.55),
-    0 0 35px rgba(255,122,0,.18);
-
+  0 10px 30px rgba(255,77,0,.25);
+  border:1px solid rgba(255,255,255,0.08);
   transition:all .35s ease;
 }
 
@@ -3120,6 +3119,8 @@ font-size:16px;
 }
 
 
+
+
 @media (max-width:768px){
 
 .navbar{
@@ -3538,3 +3539,1584 @@ font-size:14px;
 }
 
 }
+/* =========================================================
+   ASFORGE TITAN AI COACH
+   FINAL CLEAN CSS
+========================================================= */
+
+
+/* =========================================================
+   FLOATING AI BUTTON
+========================================================= */
+
+.ai-floating-btn {
+  position: fixed;
+  right: 25px;
+  bottom: 25px;
+
+  width: 75px;
+  height: 75px;
+
+  border-radius: 50%;
+  border: 2px solid #ff6b00;
+
+  background: linear-gradient(145deg, #444, #111);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 34px;
+  cursor: pointer;
+
+  z-index: 9999;
+
+  box-shadow: 0 0 30px rgba(255, 120, 0, 0.5);
+
+  animation: aiFloat 3s ease-in-out infinite;
+}
+
+
+/* =========================================================
+   OLD AI PANEL
+========================================================= */
+
+.ai-panel {
+  position: fixed;
+
+  right: 25px;
+  bottom: 120px;
+
+  width: 340px;
+
+  background: #0d0d0d;
+
+  border: 1px solid rgba(255, 120, 0, 0.3);
+  border-radius: 25px;
+
+  padding: 25px;
+
+  color: white;
+
+  opacity: 0;
+
+  transform: translateY(40px) scale(0.9);
+
+  pointer-events: none;
+
+  transition: 0.4s;
+
+  z-index: 9998;
+
+  box-shadow: 0 0 40px rgba(255, 120, 0, 0.25);
+}
+
+.ai-panel.open {
+  opacity: 1;
+
+  transform: translateY(0) scale(1);
+
+  pointer-events: auto;
+}
+
+
+/* =========================================================
+   AI HEADER
+========================================================= */
+
+.ai-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.ai-header h2 {
+  color: #ff7a00;
+}
+
+
+/* =========================================================
+   OLD ROBOT FACE
+========================================================= */
+
+.robot-face {
+  width: 130px;
+  height: 130px;
+
+  margin: 20px auto;
+
+  border-radius: 50%;
+
+  background: linear-gradient(145deg, #777, #222);
+
+  position: relative;
+
+  box-shadow: 0 0 30px rgba(255, 120, 0, 0.3);
+}
+
+.eye {
+  position: absolute;
+
+  width: 20px;
+  height: 20px;
+
+  background: #00e5ff;
+
+  border-radius: 50%;
+
+  top: 42px;
+
+  box-shadow: 0 0 20px cyan;
+
+  animation: blink 3s infinite;
+}
+
+.left-eye {
+  left: 35px;
+}
+
+.right-eye {
+  right: 35px;
+}
+
+.mouth {
+  position: absolute;
+
+  width: 45px;
+  height: 5px;
+
+  background: #ff6b00;
+
+  bottom: 35px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  border-radius: 20px;
+}
+
+
+/* =========================================================
+   MAIN AI AREA
+========================================================= */
+
+.ai-coach-section {
+  position: fixed !important;
+
+  right: 20px !important;
+  bottom: 20px !important;
+
+  width: 620px !important;
+  height: 520px !important;
+
+  overflow: visible !important;
+
+  pointer-events: none !important;
+
+  z-index: 9999 !important;
+}
+
+
+/* =========================================================
+   MAIN AI CONTAINER
+========================================================= */
+
+.ai-coach {
+  position: relative !important;
+
+  width: 620px !important;
+  height: 520px !important;
+
+  overflow: visible !important;
+
+  pointer-events: auto;
+
+  isolation: isolate;
+}
+
+
+/* =========================================================
+   CANVAS DEFAULT
+========================================================= */
+
+.ai-coach canvas {
+  display: block;
+
+  background: transparent !important;
+}
+
+
+/* =========================================================
+   AI CONTROLS
+   CHAT LEFT
+========================================================= */
+
+.ai-controls {
+  position: absolute !important;
+
+  left: 0 !important;
+  top: 50% !important;
+
+  width: 360px !important;
+  height: auto !important;
+
+  transform: translateY(-50%) !important;
+
+  z-index: 100 !important;
+
+  pointer-events: auto !important;
+}
+
+
+/* =========================================================
+   LANGUAGE SELECTOR
+========================================================= */
+
+.ai-language {
+  margin-bottom: 12px;
+}
+
+.ai-language label {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: white;
+
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+.ai-language select {
+  width: 100%;
+
+  height: 38px;
+
+  padding: 0 10px;
+
+  border-radius: 10px;
+
+  border: 1px solid rgba(255, 107, 0, 0.35);
+
+  background: rgba(10, 10, 10, 0.95);
+
+  color: white;
+
+  outline: none;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.ai-status {
+  color: white;
+
+  font-size: 14px;
+
+  line-height: 1.5;
+}
+
+.ai-status small {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+
+/* =========================================================
+   MAIN CHAT BOX
+========================================================= */
+
+.ai-chat-box {
+  position: relative !important;
+
+  width: 360px !important;
+  height: 450px !important;
+
+  box-sizing: border-box !important;
+
+  padding: 18px !important;
+
+  border-radius: 22px !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(15, 15, 15, 0.98),
+      rgba(5, 5, 5, 0.96)
+    ) !important;
+
+  border:
+    1px solid rgba(255, 107, 0, 0.45) !important;
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.7),
+    0 0 35px rgba(255, 107, 0, 0.12) !important;
+
+  backdrop-filter: blur(15px);
+
+  display: flex !important;
+
+  flex-direction: column !important;
+
+  overflow: hidden !important;
+
+  z-index: 100;
+}
+
+
+/* =========================================================
+   CHAT HEADER
+========================================================= */
+
+.ai-chat-box > .ai-status {
+  flex-shrink: 0;
+
+  padding:
+
+    2px
+    5px
+    13px;
+
+  border-bottom:
+
+    1px solid
+    rgba(255, 107, 0, 0.22);
+
+  text-align: left;
+
+  line-height: 1.45;
+}
+
+
+/* =========================================================
+   MESSAGE AREA
+========================================================= */
+
+.ai-messages {
+  flex: 1 !important;
+
+  min-height: 0 !important;
+
+  padding: 14px 5px !important;
+
+  display: flex !important;
+
+  flex-direction: column !important;
+
+  gap: 10px !important;
+
+  overflow-y: auto !important;
+
+  overflow-x: hidden !important;
+
+  scroll-behavior: smooth !important;
+
+  /*
+     Scrollbar completely hidden
+  */
+
+  scrollbar-width: none !important;
+
+  -ms-overflow-style: none !important;
+}
+
+.ai-messages::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+
+  display: none !important;
+}
+
+
+/* =========================================================
+   MESSAGE BUBBLES
+========================================================= */
+
+.ai-message {
+  width: fit-content !important;
+
+  max-width: 86% !important;
+
+  box-sizing: border-box !important;
+
+  padding: 10px 13px !important;
+
+  border-radius: 15px !important;
+
+  font-size: 14px !important;
+
+  line-height: 1.5 !important;
+
+  white-space: pre-wrap !important;
+
+  overflow-wrap: anywhere !important;
+
+  word-break: break-word !important;
+
+  flex-shrink: 0 !important;
+}
+
+
+/* USER MESSAGE */
+
+.ai-message.user {
+  align-self: flex-end !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ff6b00,
+      #ff3300
+    ) !important;
+
+  color: white !important;
+
+  border-bottom-right-radius: 5px !important;
+}
+
+
+/* TITAN MESSAGE */
+
+.ai-message.assistant {
+  align-self: flex-start !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(48, 48, 48, 0.96),
+      rgba(15, 15, 15, 0.96)
+    ) !important;
+
+  color: #f5f5f5 !important;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.08) !important;
+
+  border-bottom-left-radius: 5px !important;
+}
+
+
+/* =========================================================
+   CHAT INPUT
+========================================================= */
+
+.ai-chat-box form {
+  flex-shrink: 0 !important;
+
+  display: flex !important;
+
+  gap: 8px !important;
+
+  margin-top: 8px !important;
+}
+
+.ai-chat-box form input {
+  flex: 1 !important;
+
+  min-width: 0 !important;
+
+  height: 44px !important;
+
+  padding: 0 13px !important;
+
+  box-sizing: border-box !important;
+
+  border-radius: 12px !important;
+
+  border:
+    1px solid
+    rgba(255, 107, 0, 0.3) !important;
+
+  outline: none !important;
+
+  background:
+    rgba(255, 255, 255, 0.07) !important;
+
+  color: white !important;
+
+  font-size: 14px !important;
+}
+
+.ai-chat-box form input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+
+/* =========================================================
+   SEND BUTTON
+========================================================= */
+
+.ai-chat-box form button {
+  width: 46px !important;
+
+  height: 44px !important;
+
+  flex-shrink: 0 !important;
+
+  border: none !important;
+
+  border-radius: 12px !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ff6b00,
+      #ff3300
+    ) !important;
+
+  color: white !important;
+
+  font-size: 18px !important;
+
+  cursor: pointer !important;
+
+  transition: transform 0.2s ease;
+}
+
+.ai-chat-box form button:hover {
+  transform: scale(1.05);
+}
+
+
+/* =========================================================
+   CLOSE BUTTON
+========================================================= */
+
+.ai-chat-box .ai-close {
+  width: 100% !important;
+
+  flex-shrink: 0 !important;
+
+  margin-top: 8px !important;
+
+  height: 34px !important;
+
+  padding: 7px !important;
+
+  border: none !important;
+
+  border-radius: 10px !important;
+
+  background:
+    rgba(255, 255, 255, 0.06) !important;
+
+  color:
+    rgba(255, 255, 255, 0.7) !important;
+
+  cursor: pointer !important;
+}
+
+.ai-chat-box .ai-close:hover {
+  background:
+    rgba(255, 107, 0, 0.15) !important;
+
+  color: white !important;
+}
+
+
+/* =========================================================
+   CHAT / TALK BUTTONS
+========================================================= */
+
+.ai-buttons {
+  display: flex !important;
+
+  gap: 10px !important;
+
+  margin-top: 15px !important;
+}
+
+.ai-buttons button {
+  flex: 1 !important;
+
+  min-height: 42px;
+
+  padding: 11px !important;
+
+  border: none !important;
+
+  border-radius: 12px !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ff6b00,
+      #ff3300
+    ) !important;
+
+  color: white !important;
+
+  font-weight: 700 !important;
+
+  cursor: pointer !important;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.ai-buttons button:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 20px
+    rgba(255, 107, 0, 0.25);
+}
+
+
+/* =========================================================
+   TITAN ROBOT
+   RIGHT SIDE
+========================================================= */
+
+.ai-robot-layer {
+  position: absolute !important;
+
+  top: 0 !important;
+
+  right: -5px !important;
+
+  left: auto !important;
+
+  width: 270px !important;
+
+  height: 500px !important;
+
+  overflow: visible !important;
+
+  z-index: 200 !important;
+
+  pointer-events: none !important;
+}
+
+
+/* =========================================================
+   TITAN CANVAS
+========================================================= */
+
+.ai-robot-layer canvas {
+  position: absolute !important;
+
+  top: 0 !important;
+
+  right: 0 !important;
+
+  left: auto !important;
+
+  width: 270px !important;
+
+  height: 500px !important;
+
+  display: block !important;
+
+  background: transparent !important;
+
+  z-index: 200 !important;
+
+  pointer-events: none !important;
+}
+
+
+/* =========================================================
+   TALK BOX
+========================================================= */
+
+.ai-talk-box {
+  width: 360px;
+
+  box-sizing: border-box;
+
+  padding: 18px;
+
+  border-radius: 20px;
+
+  background:
+    rgba(10, 10, 10, 0.96);
+
+  border:
+    1px solid
+    rgba(255, 107, 0, 0.4);
+
+  color: white;
+
+  box-shadow:
+    0 20px 50px
+    rgba(0, 0, 0, 0.6);
+}
+
+.ai-talk-box p {
+  line-height: 1.6;
+
+  color:
+    rgba(255, 255, 255, 0.75);
+}
+
+.ai-talk-box button {
+  width: 100%;
+
+  min-height: 42px;
+
+  margin-top: 8px;
+
+  border: none;
+
+  border-radius: 11px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ff6b00,
+      #ff3300
+    );
+
+  color: white;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   TITAN FLOAT ANIMATION
+========================================================= */
+
+@keyframes aiFloat {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+
+/* =========================================================
+   ROBOT BLINK
+========================================================= */
+
+@keyframes blink {
+
+  0%,
+  95%,
+  100% {
+    transform: scaleY(1);
+  }
+
+  97% {
+    transform: scaleY(0.1);
+  }
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .ai-coach-section {
+    right: 10px !important;
+
+    width: 560px !important;
+
+    height: 500px !important;
+  }
+
+  .ai-coach {
+    width: 560px !important;
+
+    height: 500px !important;
+  }
+
+  .ai-controls {
+    width: 330px !important;
+  }
+
+  .ai-chat-box {
+    width: 330px !important;
+  }
+
+  .ai-talk-box {
+    width: 330px;
+  }
+
+  .ai-robot-layer {
+    width: 240px !important;
+
+    height: 480px !important;
+
+    right: 0 !important;
+  }
+
+  .ai-robot-layer canvas {
+    width: 240px !important;
+
+    height: 480px !important;
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .ai-coach-section {
+    right: 8px !important;
+
+    bottom: 8px !important;
+
+    width: calc(100vw - 16px) !important;
+
+    height: 470px !important;
+  }
+
+  .ai-coach {
+    width: 100% !important;
+
+    height: 470px !important;
+  }
+
+  /*
+     Chat becomes slightly smaller
+  */
+
+  .ai-controls {
+    left: 0 !important;
+
+    top: auto !important;
+
+    bottom: 0 !important;
+
+    transform: none !important;
+
+    width: 290px !important;
+  }
+
+  .ai-chat-box {
+    width: 290px !important;
+
+    height: 390px !important;
+
+    padding: 14px !important;
+  }
+
+  .ai-talk-box {
+    width: 290px;
+  }
+
+  /*
+     Titan on right
+  */
+
+  .ai-robot-layer {
+    top: -20px !important;
+
+    right: -8px !important;
+
+    width: 190px !important;
+
+    height: 400px !important;
+  }
+
+  .ai-robot-layer canvas {
+    width: 190px !important;
+
+    height: 400px !important;
+  }
+
+  .ai-message {
+    max-width: 88% !important;
+
+    font-size: 13px !important;
+  }
+
+  .ai-chat-box form input {
+    font-size: 13px !important;
+  }
+
+  .ai-buttons {
+    gap: 7px !important;
+  }
+
+  .ai-buttons button {
+    font-size: 13px !important;
+
+    padding: 10px !important;
+  }
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+========================================================= */
+
+@media (max-width: 400px) {
+
+  .ai-controls {
+    width: 260px !important;
+  }
+
+  .ai-chat-box {
+    width: 260px !important;
+  }
+
+  .ai-talk-box {
+    width: 260px;
+  }
+
+  .ai-robot-layer {
+    width: 160px !important;
+
+    right: -15px !important;
+  }
+
+  .ai-robot-layer canvas {
+    width: 160px !important;
+  }
+}
+/* =========================================
+   PROGRAM EXPAND DETAILS
+   ========================================= */
+
+.program-details {
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 106, 0, 0.25);
+  text-align: left;
+  animation: programOpen 0.35s ease;
+}
+
+.program-details h4 {
+  margin: 0 0 10px;
+  font-size: 17px;
+  color: #ff8a00;
+}
+
+.program-details p {
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.program-details ul {
+  padding-left: 18px;
+  margin: 10px 0 15px;
+}
+
+.program-details li {
+  margin: 7px 0;
+  font-size: 13px;
+}
+
+.program-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.program-meta span {
+  padding: 6px 9px;
+  border-radius: 8px;
+  background: rgba(255, 106, 0, 0.12);
+  font-size: 11px;
+}
+
+.program-start-btn {
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 9px;
+  background: linear-gradient(
+    135deg,
+    #ff6a00,
+    #ffb000
+  );
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.program-start-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 20px rgba(255, 106, 0, 0.3);
+}
+
+@keyframes programOpen {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* =====================================================
+   TRAINER PROFILE MODAL
+   ===================================================== */
+
+.trainer-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.78);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+
+/* MAIN MODAL */
+
+.trainer-modal {
+  position: relative;
+
+  width: min(760px, 94vw);
+  max-height: 90vh;
+
+  display: flex;
+  align-items: center;
+  gap: 28px;
+
+  padding: 28px;
+
+  overflow-y: auto;
+
+  border-radius: 24px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(25, 25, 30, 0.98),
+      rgba(10, 10, 14, 0.98)
+    );
+
+  border: 1px solid
+    rgba(255, 106, 0, 0.45);
+
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.7),
+    0 0 45px rgba(255, 106, 0, 0.12);
+}
+
+
+/* CLOSE */
+
+.trainer-modal-close {
+  position: absolute;
+
+  top: 14px;
+  right: 14px;
+
+  width: 38px;
+  height: 38px;
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.15);
+
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.08);
+
+  color: white;
+
+  font-size: 25px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  z-index: 5;
+
+  transition: 0.25s ease;
+}
+
+.trainer-modal-close:hover {
+  background: #ff6a00;
+
+  transform: rotate(90deg);
+}
+
+
+/* TRAINER IMAGE */
+
+.trainer-modal-img {
+  width: 280px;
+  height: 350px;
+
+  flex-shrink: 0;
+
+  object-fit: cover;
+
+  border-radius: 18px;
+
+  border: 1px solid
+    rgba(255, 106, 0, 0.35);
+
+  box-shadow:
+    0 15px 40px rgba(0, 0, 0, 0.55);
+}
+
+
+/* CONTENT */
+
+.trainer-modal-content {
+  flex: 1;
+  color: white;
+}
+
+.trainer-modal-badge {
+  display: inline-block;
+
+  margin-bottom: 10px;
+
+  padding: 6px 10px;
+
+  border-radius: 8px;
+
+  background: rgba(255, 106, 0, 0.12);
+
+  color: #ff8a00;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  letter-spacing: 0.5px;
+}
+
+.trainer-modal-content h2 {
+  margin: 0 0 5px;
+
+  font-size: 34px;
+
+  color: white;
+}
+
+.trainer-modal-role {
+  margin: 0 0 12px;
+
+  color: #ff9a2f;
+
+  font-weight: 600;
+}
+
+.trainer-modal-experience {
+  display: inline-block;
+
+  margin-bottom: 15px;
+
+  padding: 7px 11px;
+
+  border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.08);
+
+  color: #ffd27a;
+
+  font-size: 13px;
+}
+
+.trainer-modal-content > p:not(.trainer-modal-role) {
+  color: rgba(255, 255, 255, 0.78);
+
+  line-height: 1.65;
+
+  font-size: 14px;
+}
+
+
+/* SKILLS */
+
+.trainer-skills {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-top: 18px;
+}
+
+.trainer-skills span {
+  padding: 8px 11px;
+
+  border-radius: 9px;
+
+  background: rgba(255, 106, 0, 0.1);
+
+  border: 1px solid
+    rgba(255, 106, 0, 0.2);
+
+  color: white;
+
+  font-size: 12px;
+}
+
+
+/* =====================================================
+   MOBILE
+   ===================================================== */
+
+@media (max-width: 650px) {
+
+  .trainer-modal {
+    width: 92vw;
+
+    flex-direction: column;
+
+    gap: 18px;
+
+    padding: 20px;
+
+    text-align: center;
+  }
+
+  .trainer-modal-img {
+    width: 190px;
+    height: 230px;
+  }
+
+  .trainer-modal-content h2 {
+    font-size: 27px;
+  }
+
+  .trainer-skills {
+    justify-content: center;
+  }
+
+  .trainer-modal-content > p:not(.trainer-modal-role) {
+    font-size: 13px;
+  }
+
+}
+/* =====================================================
+   MEMBERSHIP MODAL
+   ===================================================== */
+
+.membership-modal-overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 25000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.78);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+
+/* MAIN MODAL */
+
+.membership-modal {
+  position: relative;
+
+  width: min(460px, 94vw);
+
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  padding: 32px;
+
+  border-radius: 24px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(25, 25, 30, 0.98),
+      rgba(10, 10, 14, 0.98)
+    );
+
+  border: 1px solid
+    rgba(255, 106, 0, 0.45);
+
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.7),
+    0 0 50px rgba(255, 106, 0, 0.12);
+
+  color: white;
+}
+
+
+/* CLOSE */
+
+.membership-modal-close {
+  position: absolute;
+
+  top: 14px;
+  right: 14px;
+
+  width: 38px;
+  height: 38px;
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.15);
+
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.08);
+
+  color: white;
+
+  font-size: 25px;
+
+  cursor: pointer;
+
+  transition: 0.25s ease;
+}
+
+.membership-modal-close:hover {
+  background: #ff6a00;
+  transform: rotate(90deg);
+}
+
+
+/* HEADER */
+
+.membership-modal-header {
+  text-align: center;
+
+  padding-right: 20px;
+}
+
+.membership-icon {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 58px;
+  height: 58px;
+
+  margin-bottom: 10px;
+
+  border-radius: 50%;
+
+  background: rgba(255, 106, 0, 0.12);
+
+  font-size: 28px;
+}
+
+.membership-modal-header h2 {
+  margin: 0 0 8px;
+
+  font-size: 30px;
+}
+
+.membership-price {
+  color: #ff8a00;
+
+  font-size: 28px;
+
+  font-weight: 800;
+}
+
+.membership-price small {
+  color: rgba(255, 255, 255, 0.6);
+
+  font-size: 13px;
+
+  font-weight: 500;
+}
+
+.membership-modal-header p {
+  margin: 10px 0 22px;
+
+  color: rgba(255, 255, 255, 0.7);
+
+  font-size: 13px;
+}
+
+
+/* FORM */
+
+.membership-form {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.membership-form input {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  height: 46px;
+
+  padding: 0 13px;
+
+  border-radius: 10px;
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.12);
+
+  background: rgba(255, 255, 255, 0.07);
+
+  color: white;
+
+  outline: none;
+
+  font-size: 14px;
+
+  transition: 0.2s ease;
+}
+
+.membership-form input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.membership-form input:focus {
+  border-color: #ff6a00;
+
+  background: rgba(255, 106, 0, 0.06);
+}
+
+
+/* SELECTED PLAN */
+
+.selected-plan-box {
+  display: grid;
+
+  grid-template-columns: 1fr auto;
+
+  gap: 5px 10px;
+
+  padding: 13px;
+
+  margin-top: 3px;
+
+  border-radius: 11px;
+
+  background: rgba(255, 106, 0, 0.08);
+
+  border: 1px solid
+    rgba(255, 106, 0, 0.22);
+}
+
+.selected-plan-box span {
+  grid-column: 1 / -1;
+
+  color: rgba(255, 255, 255, 0.5);
+
+  font-size: 11px;
+}
+
+.selected-plan-box strong {
+  color: white;
+
+  font-size: 15px;
+}
+
+.selected-plan-box b {
+  color: #ff8a00;
+
+  font-size: 14px;
+}
+
+
+/* CONTINUE */
+
+.membership-continue-btn {
+  width: 100%;
+
+  height: 48px;
+
+  margin-top: 4px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ff6a00,
+      #ffb000
+    );
+
+  color: white;
+
+  font-size: 15px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.25s ease;
+}
+
+.membership-continue-btn:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 25px
+    rgba(255, 106, 0, 0.3);
+}
+
+
+/* NOTE */
+
+.membership-note {
+  margin: 15px 0 0;
+
+  text-align: center;
+
+  color: rgba(255, 255, 255, 0.45);
+
+  font-size: 11px;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 500px) {
+
+  .membership-modal {
+    width: 92vw;
+
+    padding: 24px 18px;
+
+    border-radius: 20px;
+  }
+
+  .membership-modal-header h2 {
+    font-size: 25px;
+  }
+
+  .membership-price {
+    font-size: 25px;
+  }
+
+}
+

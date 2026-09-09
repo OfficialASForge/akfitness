@@ -1,11 +1,13 @@
 import HeroScene from "./components/HeroScene";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./App.css";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import AnimatedCounter from "./components/AnimatedCounter";
 import emailjs from "@emailjs/browser";
 import { div } from "framer-motion/client";
+import { motion, AnimatePresence } from "framer-motion";
+import AICoach from "./components/AICoach";
 
 function App() {
 const [loading, setLoading] = useState(true);
@@ -14,12 +16,19 @@ const [height, setHeight] = useState("");
 const [weight, setWeight] = useState("");
 const [bmi, setBmi] = useState("");
 const [aiOpen, setAiOpen] = useState(false);
+const [showTitan, setShowTitan] = useState(false);
+const hasSpoken = useRef(false);
+const welcomeAudio = useRef(null);
 const [scrollProgress, setScrollProgress] = useState(0);
 const [scrolled, setScrolled] = useState(false);
 const [counterTrigger, setCounterTrigger] = useState(0);
 const [plan, setPlan] = useState("");
 const [diet, setDiet] = useState("");
+const [expandedProgram, setExpandedProgram] = useState(null);
 const [name, setName] = useState("");
+const [selectedTrainer, setSelectedTrainer] = useState(null);
+const [selectedMembership, setSelectedMembership] = useState(null);
+const [phone, setPhone] = useState("");
 const [email, setEmail] = useState("");
 const [message, setMessage] = useState("");
 const [subject, setSubject] = useState("");
@@ -37,6 +46,7 @@ useEffect(() => {
   return () => clearTimeout(timer);
 }, []);
 
+
 useEffect(() => {
   const handleScroll = () => {
     const totalHeight =
@@ -52,6 +62,55 @@ useEffect(() => {
   return () => window.removeEventListener("scroll", handleScroll);
 }, []);
 
+useEffect(() => {
+  const handleScroll = () => {
+    setScrolled(window.scrollY > 80);
+
+    const about = document.getElementById("about");
+
+    if (!about) return;
+
+    const aboutTop = about.offsetTop;
+
+    // About section ke paas pahunchte hi Titan show
+    if (window.scrollY >= aboutTop - 150) {
+      setShowTitan(true);
+
+      // Welcome audio sirf first time
+      if (
+        !hasSpoken.current &&
+        welcomeAudio.current &&
+        audioUnlocked
+      ) {
+        hasSpoken.current = true;
+
+        welcomeAudio.current.pause();
+        welcomeAudio.current.currentTime = 0;
+        welcomeAudio.current.volume = 1;
+
+        welcomeAudio.current.load();
+
+        welcomeAudio.current.oncanplaythrough = () => {
+          welcomeAudio.current.play().catch((err) => {
+            console.log("Audio Error:", err);
+          });
+        };
+      }
+    } else {
+      // About ke upar jaate hi Titan hide
+      setShowTitan(false);
+    }
+  };
+
+  window.addEventListener("scroll", handleScroll);
+
+  // Page load par initial position check
+  handleScroll();
+
+  return () => {
+    window.removeEventListener("scroll", handleScroll);
+  };
+}, []);
 const calculateBMI = () => {
   if (!height || !weight) {
     setBmi("");
@@ -106,7 +165,12 @@ const calculateBMI = () => {
   } 
 
     return (
-    <>
+    <motion.div
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  transition={{ duration: 0.8 }}
+   >
+    
       <div
       className="scroll-progress"
      style={{ width: `${scrollProgress}%` }}
@@ -168,14 +232,39 @@ const calculateBMI = () => {
      </p>
 
       <div className="hero-buttons">
-        <button className="primary-btn">
-        Start Workout
-       </button>
 
-       <button className="secondary-btn">
-        →
-       </button>
-      </div>
+  {/* START WORKOUT → PROGRAMS */}
+  <button
+    className="primary-btn"
+    onClick={() => {
+      document
+        .getElementById("programs")
+        ?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+    }}
+  >
+    Start Workout
+  </button>
+
+  {/* ARROW → AI COACH */}
+  <button
+    className="secondary-btn"
+    onClick={() => {
+      document
+        .getElementById("about")
+        ?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+    }}
+    aria-label="Open AI Coach"
+  >
+    →
+  </button>
+
+</div>
     </div>
  
 
@@ -229,10 +318,11 @@ const calculateBMI = () => {
   </div>
 </section>
 
-        <section
-        className="about"
-        id="about"
-        data-aos="fade-up"
+        <motion.section
+         className="about"
+         id="about"
+         data-aos="fade-up"
+         
         >
         <h2>About Me</h2>
 
@@ -258,7 +348,9 @@ const calculateBMI = () => {
             <p>Online Support</p>
           </div>
         </div>
-      </section>
+
+         </motion.section>
+
         <section
         className="programs"
         id="programs"
@@ -268,28 +360,226 @@ const calculateBMI = () => {
 
   <div className="program-cards">
 
-    <div className="card glass">
-      <div className="icon-circle">💪</div>
-      <h3>Strength Training</h3>
-      <p>Build muscle and increase power.</p>
-      <button className="card-btn">Explore →</button>
-    </div>
+  {/* ==============================
+      STRENGTH TRAINING
+      ============================== */}
 
-    <div className="card glass">
-      <div className="icon-circle">🔥</div>
-      <h3>Fat Loss</h3>
-      <p>Burn calories and stay fit.</p>
-      <button className="card-btn">Explore →</button>
-    </div>
+  <div className="card glass">
 
-    <div className="card glass">
-      <div className="icon-circle">🥗</div>
-      <h3>Nutrition Plan</h3>
-      <p>Healthy diet plans for better results.</p>
-      <button className="card-btn">Explore →</button>
-    </div>
+    <div className="icon-circle">💪</div>
+
+    <h3>Strength Training</h3>
+
+    <p>
+      Build muscle and increase power.
+    </p>
+
+    <button
+      className="card-btn"
+      onClick={() =>
+        setExpandedProgram(
+          expandedProgram === "strength"
+            ? null
+            : "strength"
+        )
+      }
+    >
+      {expandedProgram === "strength"
+        ? "Close ↑"
+        : "Explore →"}
+    </button>
+
+    {expandedProgram === "strength" && (
+      <div className="program-details">
+
+        <h4>💪 Strength Training Plan</h4>
+
+        <p>
+          Build strength, muscle and overall
+          physical performance.
+        </p>
+
+        <ul>
+          <li>🏋️ Chest + Triceps</li>
+          <li>💪 Back + Biceps</li>
+          <li>🦵 Legs</li>
+          <li>🔥 Shoulders</li>
+          <li>⚡ Full Body</li>
+        </ul>
+
+        <div className="program-meta">
+          <span>⏱️ 45–60 Min</span>
+          <span>🎯 Muscle Gain</span>
+        </div>
+
+        <button
+          className="program-start-btn"
+          onClick={() => {
+            setPlan("muscle");
+
+            document
+              .querySelector(".workout-planner")
+              ?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              });
+          }}
+        >
+          Start Muscle Plan →
+        </button>
+
+      </div>
+    )}
 
   </div>
+
+
+  {/* ==============================
+      FAT LOSS
+      ============================== */}
+
+  <div className="card glass">
+
+    <div className="icon-circle">🔥</div>
+
+    <h3>Fat Loss</h3>
+
+    <p>
+      Burn calories and stay fit.
+    </p>
+
+    <button
+      className="card-btn"
+      onClick={() =>
+        setExpandedProgram(
+          expandedProgram === "fat"
+            ? null
+            : "fat"
+        )
+      }
+    >
+      {expandedProgram === "fat"
+        ? "Close ↑"
+        : "Explore →"}
+    </button>
+
+    {expandedProgram === "fat" && (
+      <div className="program-details">
+
+        <h4>🔥 Fat Loss Plan</h4>
+
+        <p>
+          Improve fitness, burn calories and
+          build a healthier routine.
+        </p>
+
+        <ul>
+          <li>🏃 Cardio Training</li>
+          <li>🔥 HIIT Workout</li>
+          <li>💪 Full Body Workout</li>
+          <li>🧘 Recovery & Stretching</li>
+          <li>🥗 Balanced Nutrition</li>
+        </ul>
+
+        <div className="program-meta">
+          <span>⏱️ 30–45 Min</span>
+          <span>🎯 Fat Loss</span>
+        </div>
+
+        <button
+          className="program-start-btn"
+          onClick={() => {
+            setPlan("fat");
+
+            document
+              .querySelector(".workout-planner")
+              ?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              });
+          }}
+        >
+          Start Fat Loss Plan →
+        </button>
+
+      </div>
+    )}
+
+  </div>
+
+
+  {/* ==============================
+      NUTRITION
+      ============================== */}
+
+  <div className="card glass">
+
+    <div className="icon-circle">🥗</div>
+
+    <h3>Nutrition Plan</h3>
+
+    <p>
+      Healthy diet plans for better results.
+    </p>
+
+    <button
+      className="card-btn"
+      onClick={() =>
+        setExpandedProgram(
+          expandedProgram === "nutrition"
+            ? null
+            : "nutrition"
+        )
+      }
+    >
+      {expandedProgram === "nutrition"
+        ? "Close ↑"
+        : "Explore →"}
+    </button>
+
+    {expandedProgram === "nutrition" && (
+      <div className="program-details">
+
+        <h4>🥗 Nutrition Plan</h4>
+
+        <p>
+          Choose a diet style and build a
+          structured nutrition routine.
+        </p>
+
+        <ul>
+          <li>🍳 Breakfast Planning</li>
+          <li>🍛 Lunch Planning</li>
+          <li>🥜 Healthy Snacks</li>
+          <li>🌙 Dinner Planning</li>
+          <li>💧 Daily Hydration</li>
+        </ul>
+
+        <div className="program-meta">
+          <span>🔥 Calories</span>
+          <span>🥩 Protein</span>
+        </div>
+
+        <button
+          className="program-start-btn"
+          onClick={() => {
+            document
+              .querySelector(".diet-section")
+              ?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              });
+          }}
+        >
+          Generate Diet Plan →
+        </button>
+
+      </div>
+    )}
+
+  </div>
+
+</div>
   </section>
   <section
   className="trainers"
@@ -315,7 +605,12 @@ const calculateBMI = () => {
 
 <span>⭐ 3+ Years Experience</span>
 
-<button className="trainer-btn">
+<button
+  className="trainer-btn"
+  onClick={() =>
+    setSelectedTrainer("aman")
+  }
+>
   View Profile →
 </button>
 
@@ -335,7 +630,12 @@ const calculateBMI = () => {
 
 <span>⭐ 6+ Years Experience</span>
 
-<button className="trainer-btn">
+<button
+  className="trainer-btn"
+  onClick={() =>
+    setSelectedTrainer("rakesh")
+  }
+>
   View Profile →
 </button>
 
@@ -462,7 +762,16 @@ excellent guidance.
 <li>✔️ Community Access</li>
 </ul>
 
-<button>Join Now</button>
+<button
+  onClick={() =>
+    setSelectedMembership({
+      name: "Basic",
+      price: "₹99",
+    })
+  }
+>
+  Join Now
+</button>
 
 </div>
 
@@ -482,7 +791,16 @@ excellent guidance.
 <li>✔️ 24/7 Support</li>
 </ul>
 
-<button>Join Now</button>
+<button
+  onClick={() =>
+    setSelectedMembership({
+      name: "Premium",
+      price: "₹149",
+    })
+  }
+>
+  Join Now
+</button>
 
 </div>
 
@@ -503,13 +821,207 @@ excellent guidance.
 <li>✔️ Lifetime Community</li>
 </ul>
 
-<button>Join Now</button>
+<button
+  onClick={() =>
+    setSelectedMembership({
+      name: "Elite",
+      price: "₹199",
+    })
+  }
+>
+  Join Now
+</button>
 
 </div>
 
 </div>
 
 </section>
+
+{/* =====================================================
+    MEMBERSHIP JOIN MODAL
+    ===================================================== */}
+
+<AnimatePresence>
+  {selectedMembership && (
+    <motion.div
+      className="membership-modal-overlay"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={() => setSelectedMembership(null)}
+    >
+
+      <motion.div
+        className="membership-modal"
+        initial={{
+          opacity: 0,
+          scale: 0.85,
+          y: 30,
+        }}
+        animate={{
+          opacity: 1,
+          scale: 1,
+          y: 0,
+        }}
+        exit={{
+          opacity: 0,
+          scale: 0.85,
+          y: 30,
+        }}
+        transition={{
+          duration: 0.3,
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+
+        {/* CLOSE */}
+
+        <button
+          className="membership-modal-close"
+          onClick={() =>
+            setSelectedMembership(null)
+          }
+          aria-label="Close"
+        >
+          ×
+        </button>
+
+
+        {/* HEADER */}
+
+        <div className="membership-modal-header">
+
+          <span className="membership-icon">
+            🏋️
+          </span>
+
+          <h2>
+            Join {selectedMembership.name}
+          </h2>
+
+          <div className="membership-price">
+            {selectedMembership.price}
+            <small> / Month</small>
+          </div>
+
+          <p>
+            Start your fitness journey with
+            Aman FitPro.
+          </p>
+
+        </div>
+
+
+        {/* FORM */}
+
+        <div className="membership-form">
+
+          <input
+            type="text"
+            placeholder="Your Name"
+            value={name}
+            onChange={(e) =>
+              setName(e.target.value)
+            }
+          />
+
+          <input
+            type="email"
+            placeholder="Your Email"
+            value={email}
+            onChange={(e) =>
+              setEmail(e.target.value)
+            }
+          />
+
+          <input
+            type="tel"
+            placeholder="Phone Number"
+            value={phone}
+            onChange={(e) =>
+              setPhone(e.target.value)
+            }
+          />
+
+          <div className="selected-plan-box">
+
+            <span>
+              Selected Plan
+            </span>
+
+            <strong>
+              {selectedMembership.name}
+            </strong>
+
+            <b>
+              {selectedMembership.price}/month
+            </b>
+
+          </div>
+
+
+          {/* CONTINUE */}
+
+          <button
+            className="membership-continue-btn"
+            onClick={() => {
+
+              if (!name.trim()) {
+                alert("Please enter your name.");
+                return;
+              }
+
+              if (!email.trim()) {
+                alert("Please enter your email.");
+                return;
+              }
+
+              if (!phone.trim()) {
+                alert("Please enter your phone number.");
+                return;
+              }
+
+              setSubject(
+                `Membership Request - ${selectedMembership.name}`
+              );
+
+              setMessage(
+                `I want to join the ${selectedMembership.name} membership plan (${selectedMembership.price}/month).
+
+Name: ${name}
+Email: ${email}
+Phone: ${phone}`
+              );
+
+              setSelectedMembership(null);
+
+              setTimeout(() => {
+                document
+                  .getElementById("contact")
+                  ?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
+              }, 150);
+
+            }}
+          >
+            Continue →
+          </button>
+
+        </div>
+
+        <p className="membership-note">
+          🔒 Your details are used only for
+          membership enquiry.
+        </p>
+
+      </motion.div>
+
+    </motion.div>
+  )}
+</AnimatePresence>
 
 <section className="faq">
 
@@ -1038,23 +1550,194 @@ Let's Build Your Dream Physique Together 💪
 
 </section>
 
-<div className="ai-coach-widget">
-  {aiOpen && (
-    <div className="ai-message glass">
-      <h3>🤖 AI Fitness Coach</h3>
-      <p>Hi! Welcome to Aman Singh Fitness.</p>
-      <p>💪 Ask me about workouts, diet, or BMI.</p>
-    </div>
+{/* =====================================================
+    TRAINER PROFILE MODAL
+    ===================================================== */}
+
+<AnimatePresence>
+  {selectedTrainer && (
+    <motion.div
+      className="trainer-modal-overlay"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={() =>
+        setSelectedTrainer(null)
+      }
+    >
+
+      <motion.div
+        className="trainer-modal"
+        initial={{
+          opacity: 0,
+          scale: 0.85,
+          y: 30,
+        }}
+        animate={{
+          opacity: 1,
+          scale: 1,
+          y: 0,
+        }}
+        exit={{
+          opacity: 0,
+          scale: 0.85,
+          y: 30,
+        }}
+        transition={{
+          duration: 0.35,
+          ease: "easeOut",
+        }}
+        onClick={(e) =>
+          e.stopPropagation()
+        }
+      >
+
+        {/* CLOSE BUTTON */}
+
+        <button
+          className="trainer-modal-close"
+          onClick={() =>
+            setSelectedTrainer(null)
+          }
+          aria-label="Close trainer profile"
+        >
+          ×
+        </button>
+
+
+        {/* ================================
+            AMAN PROFILE
+            ================================ */}
+
+        {selectedTrainer === "aman" && (
+          <>
+            <img
+              src="/images/aman-singh.png"
+              alt="Aman Singh"
+              className="trainer-modal-img"
+            />
+
+            <div className="trainer-modal-content">
+
+              <span className="trainer-modal-badge">
+                🏋️ CERTIFIED FITNESS COACH
+              </span>
+
+              <h2>
+                Aman Singh
+              </h2>
+
+              <p className="trainer-modal-role">
+                Fitness Coach • Muscle Building
+              </p>
+
+              <div className="trainer-modal-experience">
+                ⭐ 3+ Years Experience
+              </div>
+
+              <p>
+                Helping people build strength,
+                improve fitness and create a
+                consistent healthy lifestyle
+                through structured training and
+                nutrition guidance.
+              </p>
+
+              <div className="trainer-skills">
+
+                <span>💪 Muscle Gain</span>
+                <span>🔥 Fat Loss</span>
+                <span>🥗 Diet Plans</span>
+                <span>🏋️ Strength Training</span>
+
+              </div>
+
+            </div>
+          </>
+        )}
+
+
+        {/* ================================
+            RAKESH PROFILE
+            ================================ */}
+
+        {selectedTrainer === "rakesh" && (
+          <>
+            <img
+              src="/images/rakesh.jpeg"
+              alt="Rakesh Paswan"
+              className="trainer-modal-img"
+            />
+
+            <div className="trainer-modal-content">
+
+              <span className="trainer-modal-badge">
+                🏋️ CERTIFIED FITNESS COACH
+              </span>
+
+              <h2>
+                Rakesh Paswan
+              </h2>
+
+              <p className="trainer-modal-role">
+                Fitness Coach • Advanced Training
+              </p>
+
+              <div className="trainer-modal-experience">
+                ⭐ 6+ Years Experience
+              </div>
+
+              <p>
+                Experienced fitness coach focused
+                on muscle gain, fat loss and
+                structured training programs for
+                long-term results.
+              </p>
+
+              <div className="trainer-skills">
+
+                <span>💪 Muscle Gain</span>
+                <span>🔥 Fat Loss</span>
+                <span>🥗 Diet Plans</span>
+                <span>🏋️ Strength Training</span>
+
+              </div>
+
+            </div>
+          </>
+        )}
+
+      </motion.div>
+
+    </motion.div>
   )}
+</AnimatePresence>
 
-  <div
-    className="ai-avatar"
-    onClick={() => setAiOpen(!aiOpen)}
-  >
-    🤖
-  </div>
-</div>
-
+<AnimatePresence>
+  {showTitan && (
+<motion.div
+  initial={{ x: 300, opacity: 0 }}
+  animate={{ x: 0, opacity: 1 }}
+  exit={{ x: 300, opacity: 0 }}
+  transition={{
+    duration: 0.8,
+    ease: "easeOut",
+  }}
+  style={{
+    position: "fixed",
+    right: "20px",
+    bottom: "20px",
+    width: "550px",      // Pehle nahi tha
+    height: "450px",     // Pehle nahi tha
+    overflow: "visible", // Bahut zaruri
+    pointerEvents: "auto",
+    zIndex: 9999,
+  }}
+>
+  <AICoach />
+</motion.div>
+  )}
+</AnimatePresence>
 
 <footer className="footer">
 
@@ -1085,7 +1768,7 @@ Transform Your Body • Transform Your Life
 
 </footer>
 
-    </>
+    </motion.div>
   );
 }
 
