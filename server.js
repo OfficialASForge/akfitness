@@ -2,6 +2,13 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
+import crypto from "node:crypto";
+
+import {
+  getRazorpayClient,
+  MEMBERSHIP_PLANS,
+} from "./lib/razorpay.js";
+/* global process, Buffer */
 
 dotenv.config();
 
@@ -33,6 +40,21 @@ if (!process.env.GEMINI_API_KEY) {
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
+
+/* =====================================================
+   RAZORPAY API KEYS
+   ===================================================== */
+
+if (
+  !process.env.RAZORPAY_KEY_ID ||
+  !process.env.RAZORPAY_KEY_SECRET
+) {
+  console.error(
+    "❌ RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET missing in .env"
+  );
+
+  process.exit(1);
+}
 
 /* =====================================================
    SUPPORTED LANGUAGES
@@ -320,6 +342,7 @@ app.post("/api/chat", async (req, res) => {
     /*
      * If name is valid, use it.
      */
+
     if (
       !selectedLanguage ||
       selectedLanguage.code !==
@@ -328,6 +351,7 @@ app.post("/api/chat", async (req, res) => {
       /*
        * Try code as fallback.
        */
+
       selectedLanguage =
         SUPPORTED_LANGUAGES
           .map(([name, code]) => ({
@@ -343,6 +367,7 @@ app.post("/api/chat", async (req, res) => {
     /*
      * Final safe fallback.
      */
+
     if (!selectedLanguage) {
       selectedLanguage = {
         name: "English",
@@ -494,6 +519,7 @@ so avoid unnecessarily long answers.
           /*
            * Retry delay.
            */
+
           if (
             attempt <
             MAX_ATTEMPTS_PER_MODEL
@@ -592,6 +618,243 @@ so avoid unnecessarily long answers.
       error:
         error?.message ||
         "Gemini API request failed",
+    });
+  }
+});
+
+/* =====================================================
+   RAZORPAY - CREATE ORDER
+   ===================================================== */
+
+app.post("/api/create-order", async (req, res) => {
+  try {
+    const { planId } = req.body;
+
+    /*
+     * IMPORTANT:
+     * Amount is NOT accepted from frontend.
+     * Server gets the amount from MEMBERSHIP_PLANS.
+     */
+
+    const plan = MEMBERSHIP_PLANS[planId];
+
+    if (!plan) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid membership plan.",
+      });
+    }
+
+    const razorpay = getRazorpayClient();
+
+    /*
+     * Create Razorpay order using
+     * server-side membership price.
+     */
+
+    const order = await razorpay.orders.create({
+      amount: plan.amount,
+      currency: "INR",
+      receipt: `rcpt_${planId}_${Date.now()}`,
+      notes: {
+        plan_id: planId,
+        plan_name: plan.name,
+      },
+    });
+
+    console.log(
+      `✅ Razorpay order created: ${order.id} | ${plan.name} | ₹${plan.displayAmount}`
+    );
+
+    /*
+     * Frontend expects:
+     * order.id
+     * order.amount
+     * order.currency
+     */
+
+    return res.json({
+      success: true,
+
+      order: {
+        id: order.id,
+        amount: order.amount,
+        currency: order.currency,
+      },
+
+      plan_id: planId,
+      plan_name: plan.name,
+    });
+
+  } catch (error) {
+    console.error(
+      "❌ Razorpay create order error:",
+      error
+    );
+
+    if (
+      error?.statusCode === 401 ||
+      error?.status === 401
+    ) {
+      return res.status(401).json({
+        success: false,
+        error:
+          "Razorpay authentication failed. Check your API keys.",
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      error:
+        error?.error?.description ||
+        error?.message ||
+        "Unable to create Razorpay order.",
+    });
+  }
+});
+
+/* =====================================================
+   RAZORPAY - VERIFY PAYMENT
+   ===================================================== */
+
+app.post("/api/verify-payment", async (req, res) => {
+  try {
+    const {
+      razorpay_payment_id,
+      razorpay_order_id,
+      razorpay_signature,
+    } = req.body;
+
+    if (
+      !razorpay_payment_id ||
+      !razorpay_order_id ||
+      !razorpay_signature
+    ) {
+      return res.status(400).json({
+        success: false,
+        error:
+          "Missing payment verification fields.",
+      });
+    }
+
+    const razorpay = getRazorpayClient();
+
+    /*
+     * Fetch payment from Razorpay so that the
+     * server-side order_id is trusted.
+     */
+
+    const payment =
+      await razorpay.payments.fetch(
+        razorpay_payment_id
+      );
+
+    const serverOrderId =
+      payment?.order_id;
+
+    if (!serverOrderId) {
+      return res.status(400).json({
+        success: false,
+        error:
+          "Razorpay payment is not linked to an order.",
+      });
+    }
+
+    if (
+      serverOrderId !==
+      razorpay_order_id
+    ) {
+      return res.status(400).json({
+        success: false,
+        error:
+          "Payment order mismatch.",
+      });
+    }
+
+    /*
+     * HMAC-SHA256(order_id + "|" + payment_id)
+     */
+
+    const generatedSignature =
+      crypto
+        .createHmac(
+          "sha256",
+          process.env.RAZORPAY_KEY_SECRET
+        )
+        .update(
+          `${serverOrderId}|${razorpay_payment_id}`
+        )
+        .digest("hex");
+
+    const expectedBuffer =
+      Buffer.from(
+        generatedSignature,
+        "utf8"
+      );
+
+    const receivedBuffer =
+      Buffer.from(
+        razorpay_signature,
+        "utf8"
+      );
+
+    if (
+      expectedBuffer.length !==
+      receivedBuffer.length
+    ) {
+      return res.status(400).json({
+        success: false,
+        error:
+          "Invalid payment signature.",
+      });
+    }
+
+    const signatureValid =
+      crypto.timingSafeEqual(
+        expectedBuffer,
+        receivedBuffer
+      );
+
+    if (!signatureValid) {
+      console.error(
+        `❌ Invalid Razorpay signature: ${razorpay_payment_id}`
+      );
+
+      return res.status(400).json({
+        success: false,
+        error:
+          "Payment signature verification failed.",
+      });
+    }
+
+    console.log(
+      `✅ Razorpay payment verified: ${razorpay_payment_id}`
+    );
+
+    return res.json({
+      success: true,
+      verified: true,
+      payment_id:
+        razorpay_payment_id,
+      order_id:
+        serverOrderId,
+      payment_status:
+        payment.status,
+      captured:
+        Boolean(payment.captured),
+    });
+
+  } catch (error) {
+    console.error(
+      "❌ Razorpay payment verification error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      error:
+        error?.message ||
+        "Payment verification failed.",
     });
   }
 });

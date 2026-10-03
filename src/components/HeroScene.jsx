@@ -1,7 +1,6 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
 import {
-  OrbitControls,
   Float,
   MeshDistortMaterial,
   Stars,
@@ -9,7 +8,6 @@ import {
   useGLTF,
   useAnimations,
 } from "@react-three/drei";
-import { EffectComposer, Bloom } from "@react-three/postprocessing";
 
 function EnergyBall({ position, scale, color }) {
   return (
@@ -29,6 +27,14 @@ function EnergyBall({ position, scale, color }) {
 function FireParticles() {
   const group = useRef();
 
+  // Fixed positions so React doesn't call Math.random() during render.
+const particles = Array.from({ length: 15 }, (_, i) => ({
+  x: Math.sin(i * 12.9898) * 0.5 * 10,
+  y: ((Math.sin(i * 78.233) + 1) / 2) * 6 - 2,
+  z: Math.sin(i * 39.425) * 0.5 * 10,
+}));
+  
+
   useFrame((state) => {
     if (group.current) {
       group.current.rotation.y =
@@ -38,13 +44,13 @@ function FireParticles() {
 
   return (
     <group ref={group}>
-      {Array.from({ length: 15 }).map((_, i) => (
+      {particles.map((particle, i) => (
         <mesh
           key={i}
           position={[
-            (Math.random() - 0.5) * 10,
-            Math.random() * 6 - 2,
-            (Math.random() - 0.5) * 10,
+            particle.x,
+            particle.y,
+            particle.z,
           ]}
         >
           <sphereGeometry args={[0.03, 8, 8]} />
@@ -56,14 +62,16 @@ function FireParticles() {
     </group>
   );
 }
+
 function CameraMotion() {
   useFrame((state) => {
     const t = state.clock.elapsedTime;
 
     state.camera.position.x =
-    Math.sin(t*0.15)*0.08;
+      Math.sin(t * 0.15) * 0.08;
+
     state.camera.position.y =
-    0.55+Math.sin(t*0.25)*0.02;
+      0.55 + Math.sin(t * 0.25) * 0.02;
 
     state.camera.lookAt(0, 0.25, 0);
   });
@@ -76,7 +84,8 @@ function EnergyRing() {
 
   useFrame((state) => {
     if (ring.current) {
-      ring.current.rotation.z = state.clock.elapsedTime * 0.7;
+      ring.current.rotation.z =
+        state.clock.elapsedTime * 0.7;
     }
   });
 
@@ -85,7 +94,7 @@ function EnergyRing() {
       ref={ring}
       position={[0, -2.0, 0]}
       rotation={[Math.PI / 2, 0, 0]}
-     >
+    >
       <torusGeometry args={[1.8, 0.08, 32, 200]} />
 
       <meshBasicMaterial
@@ -100,25 +109,28 @@ function EnergyRing() {
 function EnergyPlatform() {
   const platform = useRef();
 
- useFrame((state) => {
-  if (platform.current) {
-    platform.current.rotation.z =
-      state.clock.elapsedTime * 0.15;
+  useFrame((state) => {
+    if (platform.current) {
+      platform.current.rotation.z =
+        state.clock.elapsedTime * 0.15;
 
-    const glow =
-      0.85 + Math.sin(state.clock.elapsedTime * 3) * 0.15;
+      const glow =
+        0.85 +
+        Math.sin(state.clock.elapsedTime * 3) * 0.15;
 
-    // Outer Ring
-    platform.current.children[1].material.opacity = glow;
+      // Outer Ring
+      platform.current.children[1].material.opacity = glow;
 
-    // Inner Ring
-    platform.current.children[2].material.opacity =
-      0.6 + Math.sin(state.clock.elapsedTime * 3) * 0.2;
+      // Inner Ring
+      platform.current.children[2].material.opacity =
+        0.6 +
+        Math.sin(state.clock.elapsedTime * 3) * 0.2;
 
       platform.current.children[3].material.opacity =
-     0.25 + Math.sin(state.clock.elapsedTime * 2.5) * 0.08;
-  }
-});
+        0.25 +
+        Math.sin(state.clock.elapsedTime * 2.5) * 0.08;
+    }
+  });
 
   return (
     <group
@@ -128,25 +140,25 @@ function EnergyPlatform() {
     >
       {/* Glow Disc */}
       <mesh>
-  <circleGeometry args={[1.55, 64]} />
-  <meshBasicMaterial
-    color="#ff8c00"
-    transparent
-    opacity={0.75}
-    toneMapped={false}
-  />
-</mesh>
+        <circleGeometry args={[1.55, 64]} />
+        <meshBasicMaterial
+          color="#ff8c00"
+          transparent
+          opacity={0.75}
+          toneMapped={false}
+        />
+      </mesh>
 
       {/* Outer Ring */}
       <mesh>
-      <ringGeometry args={[2.05, 2.32, 128]} />
-      <meshBasicMaterial
-  color="#ffd54a"
-  transparent
-  opacity={1}
-  toneMapped={false}
-/>
-     </mesh>
+        <ringGeometry args={[2.05, 2.32, 128]} />
+        <meshBasicMaterial
+          color="#ffd54a"
+          transparent
+          opacity={1}
+          toneMapped={false}
+        />
+      </mesh>
 
       {/* Inner Ring */}
       <mesh position={[0, 0, 0.002]}>
@@ -159,14 +171,14 @@ function EnergyPlatform() {
       </mesh>
 
       <mesh position={[0, 0, 0.003]}>
-  <ringGeometry args={[1.75, 1.82, 128]} />
-  <meshBasicMaterial
-    color="#ffae00"
-    transparent
-    opacity={0.35}
-    toneMapped={false}
-  />
-</mesh>
+        <ringGeometry args={[1.75, 1.82, 128]} />
+        <meshBasicMaterial
+          color="#ffae00"
+          transparent
+          opacity={0.35}
+          toneMapped={false}
+        />
+      </mesh>
     </group>
   );
 }
@@ -177,12 +189,16 @@ function AuraGlow() {
   useFrame((state) => {
     if (glow.current) {
       glow.current.material.opacity =
-        0.18 + Math.sin(state.clock.elapsedTime * 2) * 0.06;
+        0.18 +
+        Math.sin(state.clock.elapsedTime * 2) * 0.06;
     }
   });
 
   return (
-    <mesh position={[0, 0.4, -0.9]} ref={glow}>
+    <mesh
+      position={[0, 0.4, -0.9]}
+      ref={glow}
+    >
       <circleGeometry args={[1.6, 64]} />
       <meshBasicMaterial
         color="#ff7a00"
@@ -213,7 +229,6 @@ function Fighter() {
       first.fadeIn(0.5);
       first.play();
     }
-    
   }, [actions]);
 
   useFrame((state) => {
@@ -239,21 +254,29 @@ function Fighter() {
     </group>
   );
 }
+
 export default function HeroScene() {
+  const [isMobile, setIsMobile] =
+    useState(false);
 
-  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
 
-useEffect(() => {
-  const checkMobile = () => {
-    setIsMobile(window.innerWidth <= 768);
-  };
+    checkMobile();
 
-  checkMobile();
+    window.addEventListener(
+      "resize",
+      checkMobile
+    );
 
-  window.addEventListener("resize", checkMobile);
-
-  return () => window.removeEventListener("resize", checkMobile);
-}, []);
+    return () =>
+      window.removeEventListener(
+        "resize",
+        checkMobile
+      );
+  }, []);
 
   return (
     <Canvas
@@ -264,33 +287,38 @@ useEffect(() => {
         fov: 38,
       }}
       gl={{
-       alpha: true,
-       antialias: false,
-       powerPreference: "high-performance",
+        alpha: true,
+        antialias: false,
+        powerPreference:
+          "high-performance",
       }}
     >
-      <ambientLight intensity={0.4} color="#ffffff" />
+      <ambientLight
+        intensity={0.4}
+        color="#ffffff"
+      />
+
       <directionalLight
-      position={[2, 3, 4]}
-      intensity={1.4}
-      color="#ffb347"
-     />
+        position={[2, 3, 4]}
+        intensity={1.4}
+        color="#ffb347"
+      />
 
       <spotLight
-      position={[4, 6, 5]}
-      angle={0.45}
-      penumbra={1}
-      intensity={180}
-      distance={20}
-      castShadow
-      color="#ff7a00"
-     />
+        position={[4, 6, 5]}
+        angle={0.45}
+        penumbra={1}
+        intensity={180}
+        distance={20}
+        castShadow
+        color="#ff7a00"
+      />
 
       <pointLight
-      position={[-5, 2, 4]}
-      intensity={40}
-      color="#4fc3ff"
-     />
+        position={[-5, 2, 4]}
+        intensity={40}
+        color="#4fc3ff"
+      />
 
       <pointLight
         position={[0, 5, -2]}
@@ -327,11 +355,11 @@ useEffect(() => {
         scale={0.55}
         color="#ff3300"
       />
+
       <CameraMotion />
       <EnergyPlatform />
       <AuraGlow />
       <Fighter />
-      
     </Canvas>
   );
 }

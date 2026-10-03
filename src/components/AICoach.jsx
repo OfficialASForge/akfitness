@@ -181,6 +181,8 @@ export default function AICoach() {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [isThinking, setIsThinking] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isListening, setIsListening] = useState(false);
 
   const [language, setLanguage] = useState(
     SUPPORTED_LANGUAGES.find(
@@ -248,6 +250,7 @@ export default function AICoach() {
     }
 
     speakingRef.current = false;
+    setIsSpeaking(false);
     currentSpokenTextRef.current = "";
   };
 
@@ -267,7 +270,7 @@ export default function AICoach() {
     if (audioContextRef.current) {
       try {
         audioContextRef.current.close();
-      } catch {}
+      } catch { /* ignore cleanup errors */ }
 
       audioContextRef.current = null;
     }
@@ -278,7 +281,7 @@ export default function AICoach() {
         .forEach((track) => {
           try {
             track.stop();
-          } catch {}
+          } catch { /* ignore cleanup errors */ }
         });
 
       micStreamRef.current = null;
@@ -345,11 +348,12 @@ export default function AICoach() {
     if (recognitionRef.current) {
       try {
         recognitionRef.current.abort();
-      } catch {}
+      } catch { /* ignore cleanup errors */ }
 
       recognitionRef.current = null;
     }
 
+    setIsListening(false);
     recognitionStartingRef.current = false;
     bargeInRecognitionRef.current = false;
     userVoiceDetectedRef.current = false;
@@ -387,6 +391,7 @@ export default function AICoach() {
 
     recognitionRef.current = recognition;
     recognitionStartingRef.current = true;
+    setIsListening(true);
 
     /*
      * In interruption mode we keep recognition alive.
@@ -411,6 +416,7 @@ export default function AICoach() {
     recognition.onstart = () => {
       recognitionStartingRef.current =
         false;
+      setIsListening(true);
 
       if (interruptMode) {
         bargeInRecognitionRef.current =
@@ -573,11 +579,12 @@ export default function AICoach() {
 
       try {
         recognition.stop();
-      } catch {}
+      } catch { /* ignore cleanup errors */ }
 
       recognitionRef.current = null;
       recognitionStartingRef.current =
         false;
+      setIsListening(false);
 
       bargeInRecognitionRef.current =
         false;
@@ -620,6 +627,7 @@ export default function AICoach() {
       recognitionRef.current = null;
       recognitionStartingRef.current =
         false;
+      setIsListening(false);
 
       /*
        * If Titan is still speaking, rebuild the
@@ -711,6 +719,7 @@ export default function AICoach() {
       recognitionRef.current = null;
       recognitionStartingRef.current =
         false;
+      setIsListening(false);
 
       /*
        * Titan is still speaking.
@@ -910,6 +919,7 @@ export default function AICoach() {
       }
 
       speakingRef.current = true;
+      setIsSpeaking(true);
 
       /*
        * Immediately start interruption recognition.
@@ -932,6 +942,7 @@ export default function AICoach() {
       }
 
       speakingRef.current = false;
+      setIsSpeaking(false);
       currentSpokenTextRef.current =
         "";
       bargeInRecognitionRef.current =
@@ -977,6 +988,7 @@ export default function AICoach() {
       ) {
         speakingRef.current =
           false;
+        setIsSpeaking(false);
 
         currentSpokenTextRef.current =
           "";
@@ -996,6 +1008,7 @@ export default function AICoach() {
 
       speakingRef.current =
         false;
+      setIsSpeaking(false);
 
       currentSpokenTextRef.current =
         "";
@@ -1081,7 +1094,7 @@ export default function AICoach() {
         "aiCoachActivated",
         "true"
       );
-    } catch {}
+    } catch { /* ignore cleanup errors */ }
 
     setActivated(true);
 
@@ -1685,9 +1698,9 @@ export default function AICoach() {
                   startListening()
                 }
                 disabled={
-                  !!recognitionRef.current ||
+                  isListening ||
                   isThinking ||
-                  speakingRef.current
+                  isSpeaking
                 }
               >
                 🎤 Speak

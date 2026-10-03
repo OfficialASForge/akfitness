@@ -5119,4 +5119,2445 @@ font-size:14px;
   }
 
 }
+/* =====================================================
+   EXERCISE DEMO MODAL
+   ===================================================== */
 
+.exercise-demo-actions {
+  position: absolute;
+  top: 15px;
+  right: 18px;
+  display: flex;
+  gap: 8px;
+  z-index: 20;
+}
+
+.exercise-demo-back {
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  font-size: 26px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.exercise-demo-back:hover {
+  background: #ff4d00;
+  transform: translateX(-3px);
+}
+
+.exercise-demo-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+  z-index: 10000;
+}
+
+
+.exercise-demo-modal {
+  position: relative;
+
+  width: min(720px, 95vw);
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  padding: 32px;
+
+  border-radius: 24px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(35, 35, 35, 0.98),
+      rgba(15, 15, 15, 0.98)
+    );
+
+  border: 1px solid rgba(255, 77, 0, 0.35);
+
+  box-shadow:
+    0 30px 100px rgba(0, 0, 0, 0.75),
+    0 0 45px rgba(255, 77, 0, 0.18);
+
+  color: white;
+}
+
+
+.exercise-demo-close {
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+
+.exercise-demo-close:hover {
+  background: #ff4d00;
+  transform: rotate(90deg);
+}
+
+
+/* HEADER */
+
+.exercise-demo-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  padding-right: 45px;
+  margin-bottom: 25px;
+}
+
+
+.exercise-demo-icon {
+  width: 72px;
+  height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 20px;
+
+  background: rgba(255, 77, 0, 0.15);
+
+  border: 1px solid rgba(255, 77, 0, 0.35);
+
+  font-size: 38px;
+
+  box-shadow: 0 0 30px rgba(255, 77, 0, 0.15);
+}
+
+
+.exercise-demo-level {
+  display: inline-block;
+
+  padding: 5px 12px;
+
+  border-radius: 20px;
+
+  background: rgba(255, 77, 0, 0.16);
+
+  color: #ff8a5b;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+
+.exercise-demo-header h2 {
+  margin: 8px 0 4px;
+
+  font-size: 30px;
+
+  background: linear-gradient(
+    90deg,
+    #ff4d00,
+    #ff9d66
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+
+.exercise-demo-header p {
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.65);
+}
+
+
+/* DEMO VIDEO AREA */
+
+.exercise-demo-video {
+  height: 250px;
+
+  border-radius: 18px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(255, 77, 0, 0.18),
+      rgba(0, 0, 0, 0.75) 65%
+    );
+
+  border: 1px solid rgba(255, 77, 0, 0.25);
+
+  margin-bottom: 22px;
+
+  position: relative;
+  overflow: hidden;
+}
+
+
+.exercise-demo-video::before {
+  content: "";
+
+  position: absolute;
+  width: 180px;
+  height: 180px;
+
+  border-radius: 50%;
+
+  border: 1px solid rgba(255, 77, 0, 0.25);
+
+  animation: demoPulse 2.5s infinite;
+}
+
+
+@keyframes demoPulse {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.2;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 0.6;
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+
+.demo-play-circle {
+  position: relative;
+  z-index: 2;
+
+  width: 70px;
+  height: 70px;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ff4d00;
+
+  font-size: 25px;
+
+  padding-left: 4px;
+
+  box-shadow:
+    0 0 35px rgba(255, 77, 0, 0.5);
+
+  animation: playGlow 1.8s infinite;
+}
+
+
+@keyframes playGlow {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+
+.exercise-demo-video h3 {
+  position: relative;
+  z-index: 2;
+
+  margin: 15px 0 5px;
+
+  font-size: 20px;
+}
+
+
+.exercise-demo-video p {
+  position: relative;
+  z-index: 2;
+
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.55);
+
+  font-size: 14px;
+}
+
+
+/* INFO */
+
+.exercise-demo-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  gap: 15px;
+
+  margin-bottom: 25px;
+}
+
+
+.exercise-demo-info > div {
+  padding: 17px;
+
+  border-radius: 15px;
+
+  background: rgba(255, 255, 255, 0.055);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  display: grid;
+
+  grid-template-columns: 30px 1fr;
+
+  align-items: center;
+}
+
+
+.exercise-demo-info span {
+  font-size: 22px;
+}
+
+
+.exercise-demo-info strong {
+  font-size: 14px;
+}
+
+
+.exercise-demo-info p {
+  grid-column: 2;
+
+  margin: 3px 0 0;
+
+  color: #ff8a5b;
+
+  font-size: 14px;
+}
+
+
+/* EXERCISE LIST */
+
+.exercise-demo-list h3 {
+  margin-bottom: 14px;
+
+  font-size: 19px;
+}
+
+
+.demo-exercise-grid {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 10px;
+}
+
+
+.demo-exercise-item {
+  padding: 13px 15px;
+
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.055);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  font-size: 14px;
+
+  transition: 0.25s;
+}
+
+
+.demo-exercise-item:hover {
+  transform: translateY(-2px);
+
+  border-color: rgba(255, 77, 0, 0.4);
+
+  background: rgba(255, 77, 0, 0.08);
+}
+
+
+/* START BUTTON */
+
+.exercise-demo-start {
+  width: 100%;
+
+  margin-top: 25px;
+
+  padding: 15px;
+
+  border: none;
+
+  border-radius: 13px;
+
+  background: linear-gradient(
+    90deg,
+    #ff4d00,
+    #ff6a2a
+  );
+
+  color: white;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 30px rgba(255, 77, 0, 0.25);
+
+  transition: 0.25s;
+}
+
+
+.exercise-demo-start:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 15px 40px rgba(255, 77, 0, 0.4);
+}
+
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+  .exercise-demo-modal {
+    padding: 22px;
+
+    border-radius: 20px;
+  }
+
+  .exercise-demo-header {
+    gap: 12px;
+  }
+
+  .exercise-demo-icon {
+    width: 55px;
+    height: 55px;
+
+    font-size: 28px;
+  }
+
+  .exercise-demo-header h2 {
+    font-size: 23px;
+  }
+
+  .exercise-demo-video {
+    height: 210px;
+  }
+
+  .exercise-demo-info {
+    grid-template-columns: 1fr;
+  }
+
+  .demo-exercise-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+/* =========================================
+   MUSCLE GROUP SELECTION
+   ========================================= */
+
+.muscle-group-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.muscle-group-card {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+  border-radius: 16px;
+  padding: 22px 15px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  transition: 0.3s ease;
+}
+
+.muscle-group-card span {
+  font-size: 32px;
+}
+
+.muscle-group-card strong {
+  font-size: 17px;
+}
+
+.muscle-group-card small {
+  opacity: 0.65;
+}
+
+.muscle-group-card:hover {
+  transform: translateY(-5px);
+  border-color: #ff4d00;
+  background: rgba(255, 77, 0, 0.12);
+}
+
+
+/* =========================================
+   INDIVIDUAL EXERCISE LIST
+   ========================================= */
+
+.exercise-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 25px;
+  max-height: 430px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.individual-exercise-btn {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+  border-radius: 14px;
+  padding: 16px 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  text-align: left;
+  transition: 0.3s ease;
+}
+
+.individual-exercise-btn span {
+  font-size: 15px;
+}
+
+.individual-exercise-btn strong {
+  color: #ff4d00;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.individual-exercise-btn:hover {
+  transform: translateX(5px);
+  border-color: #ff4d00;
+  background: rgba(255, 77, 0, 0.1);
+}
+
+
+/* =========================================
+   VIDEO PLAYER
+   ========================================= */
+
+.exercise-demo-player {
+  width: 100%;
+  max-height: 380px;
+  display: block;
+  border-radius: 16px;
+  background: #000;
+  object-fit: cover;
+}
+
+.demo-video-placeholder {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: #080808;
+  border-radius: 16px;
+  padding: 30px;
+}
+
+.demo-video-placeholder h3 {
+  margin: 15px 0 5px;
+}
+
+.demo-video-placeholder p {
+  opacity: 0.65;
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 600px) {
+
+  .muscle-group-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .muscle-group-card {
+    padding: 17px 10px;
+  }
+
+  .muscle-group-card span {
+    font-size: 26px;
+  }
+
+  .individual-exercise-btn {
+    padding: 14px;
+  }
+
+  .individual-exercise-btn strong {
+    font-size: 11px;
+  }
+
+  .exercise-demo-player {
+    max-height: 280px;
+  }
+
+}
+
+
+/* ============================================================
+   ASFORGE FITNESS — FINAL MOBILE + TABLET POLISH
+   Android + iOS
+   Appended overrides: desktop design remains unchanged.
+============================================================ */
+
+/* ---------- Global mobile foundations ---------- */
+html {
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a {
+  touch-action: manipulation;
+}
+
+img,
+video,
+canvas {
+  max-width: 100%;
+}
+
+
+/* ============================================================
+   TABLET — 769px to 1100px
+============================================================ */
+@media (min-width: 769px) and (max-width: 1100px) {
+
+  .navbar {
+    width: 94%;
+    padding: 15px 24px;
+  }
+
+  .menu {
+    gap: 20px;
+  }
+
+  .menu a {
+    font-size: 14px;
+  }
+
+  .hero {
+    margin: 18px;
+    padding: 120px 5% 60px;
+    gap: 35px;
+  }
+
+  .hero-content {
+    gap: 30px;
+  }
+
+  .hero-left {
+    width: 48%;
+  }
+
+  .hero-right {
+    width: 52%;
+    min-height: 500px;
+  }
+
+  .hero-title {
+    font-size: clamp(3.4rem, 7vw, 5.5rem) !important;
+  }
+
+  .hero-description {
+    font-size: 17px;
+  }
+
+  .hero-buttons {
+    flex-wrap: wrap;
+  }
+
+  .hero-character-placeholder {
+    min-height: 500px;
+  }
+
+  .hero-stats {
+    gap: 15px;
+  }
+
+  .hero-stat {
+    width: 190px;
+  }
+
+  .programs,
+  .about,
+  .trainers,
+  .transformations,
+  .testimonials,
+  .pricing,
+  .faq,
+  .gallery,
+  .stats,
+  .exercises,
+  .workout-planner,
+  .diet-section,
+  .contact {
+    padding-left: 5%;
+    padding-right: 5%;
+  }
+
+  .exercise-demo-modal {
+    width: min(760px, 92vw);
+  }
+}
+
+
+/* ============================================================
+   PHONES + SMALL TABLETS — up to 768px
+============================================================ */
+@media (max-width: 768px) {
+
+  /* Safe-area support for modern iPhones */
+  .navbar {
+    top: max(8px, env(safe-area-inset-top));
+    width: calc(100% - 20px);
+    max-width: none;
+    padding:
+      12px
+      16px
+      12px
+      18px;
+    border-radius: 16px;
+  }
+
+  .navbar-scrolled {
+    top: max(6px, env(safe-area-inset-top));
+    padding: 11px 16px 11px 18px;
+  }
+
+  .logo {
+    font-size: clamp(19px, 5.5vw, 24px);
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  .hamburger {
+    width: 44px;
+    height: 44px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    font-size: 29px;
+    line-height: 1;
+    border-radius: 12px;
+  }
+
+  .menu {
+    top: calc(100% + 8px);
+    left: 0;
+    width: 100%;
+    max-height: calc(100svh - 100px);
+    overflow-y: auto;
+    padding: 14px;
+    gap: 4px;
+    border: 1px solid rgba(255,255,255,.08);
+    background: rgba(10,10,10,.96);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+  }
+
+  .menu a {
+    width: 100%;
+    padding: 13px 12px;
+    border-radius: 10px;
+    font-size: 15px;
+  }
+
+  .menu a::after {
+    display: none;
+  }
+
+  .menu a:active {
+    background: rgba(255,77,0,.12);
+  }
+
+  .join-btn {
+    display: none !important;
+  }
+
+
+  /* ---------- Hero ---------- */
+
+  .hero {
+    width: calc(100% - 16px);
+    margin: 8px;
+    padding:
+      max(105px, calc(90px + env(safe-area-inset-top)))
+      16px
+      35px;
+    min-height: auto;
+    gap: 10px;
+    border-radius: 24px;
+    background-position: center;
+  }
+
+  .hero-content {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .hero-left,
+  .hero-right {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero-badge {
+    margin-bottom: 10px;
+    padding: 8px 13px;
+    font-size: 11px;
+  }
+
+  .hero-title {
+    width: 100%;
+    margin: 12px 0;
+    font-size: clamp(2.35rem, 12vw, 4rem) !important;
+    line-height: .98;
+    letter-spacing: -1px;
+  }
+
+  .hero-title span {
+    font-size: inherit !important;
+  }
+
+  .hero-description {
+    max-width: 600px;
+    margin: 15px auto 22px;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .hero-buttons {
+    width: 100%;
+    max-width: 420px;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .primary-btn,
+  .secondary-btn {
+    width: 100%;
+    min-height: 48px;
+    padding: 13px 18px;
+    font-size: 15px;
+  }
+
+  .hero-right {
+    min-height: 390px;
+    height: 390px;
+    order: 2;
+  }
+
+  .hero-character-placeholder {
+    width: 100%;
+    height: 390px !important;
+    min-height: 390px;
+  }
+
+  .hero-character-placeholder canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .hero-character-bg {
+    width: 420px;
+    height: 420px;
+  }
+
+  .hero-glow {
+    width: 280px;
+    height: 280px;
+  }
+
+  .hero-nebula {
+    width: 330px;
+    height: 330px;
+  }
+
+  .hero-ring {
+    width: 310px;
+    height: 310px;
+  }
+
+  .hero-ring2 {
+    width: 360px;
+    height: 360px;
+  }
+
+  .hero-ring3 {
+    width: 410px;
+    height: 410px;
+  }
+
+  .hero-panel {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    transform: none;
+    width: 100%;
+    margin-top: -5px;
+    padding: 15px;
+  }
+
+  .hero-progress {
+    gap: 8px;
+  }
+
+  .hero-progress h2 {
+    font-size: 21px;
+  }
+
+  .hero-progress p {
+    font-size: 11px;
+  }
+
+  .hero-stats {
+    width: 100%;
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .hero-stat {
+    width: 100%;
+    min-width: 0;
+    padding: 15px 10px;
+    border-radius: 17px;
+  }
+
+  .hero-stat h3 {
+    font-size: 25px;
+  }
+
+  .hero-stat p {
+    font-size: 12px;
+  }
+
+  /* Prevent large decorative elements from creating horizontal overflow */
+  .hero::before,
+  .hero::after {
+    max-width: 100vw;
+  }
+
+
+  /* ---------- Common sections ---------- */
+
+  .programs,
+  .about,
+  .trainers,
+  .transformations,
+  .testimonials,
+  .pricing,
+  .faq,
+  .gallery,
+  .stats,
+  .exercises,
+  .bmi-section,
+  .workout-planner,
+  .diet-section,
+  .contact {
+    padding:
+      60px
+      16px
+      55px;
+  }
+
+  .programs h2,
+  .about h2,
+  .trainers h2,
+  .transformations h2,
+  .testimonials h2,
+  .pricing h2,
+  .faq h2,
+  .gallery h2,
+  .stats h2,
+  .exercises h2 {
+    font-size: clamp(28px, 8vw, 36px);
+    line-height: 1.1;
+    margin-bottom: 30px;
+  }
+
+  .workout-planner h2,
+  .diet-section h2,
+  .contact h2 {
+    font-size: clamp(27px, 8vw, 35px);
+    line-height: 1.15;
+    letter-spacing: 1.5px;
+  }
+
+  .program-cards,
+  .trainer-container,
+  .transformation-container,
+  .testimonial-container,
+  .pricing-container,
+  .gallery-container,
+  .stats-container,
+  .exercise-container {
+    width: 100%;
+    grid-template-columns: 1fr !important;
+    gap: 18px;
+  }
+
+  .card,
+  .price-card,
+  .exercise-card,
+  .trainer-card,
+  .transformation-card,
+  .testimonial-card,
+  .stat-card {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Disable desktop 3D hover effects on touch devices */
+  .card:hover,
+  .stat-card:hover,
+  .price-card:hover,
+  .testimonial-card:hover,
+  .exercise-card:hover,
+  .trainer-card:hover,
+  .transformation-card:hover {
+    transform: none;
+  }
+
+  .card:active,
+  .price-card:active,
+  .exercise-card:active,
+  .trainer-card:active,
+  .transformation-card:active {
+    transform: scale(.985);
+  }
+
+
+  /* ---------- Images ---------- */
+
+  .trainer-card img,
+  .transformation-card img,
+  .exercise-img {
+    max-width: 100%;
+  }
+
+  .trainer-card img {
+    height: 300px;
+    object-fit: cover;
+  }
+
+  .transformation-card img {
+    height: 300px;
+    object-fit: cover;
+  }
+
+  .exercise-img {
+    height: 230px;
+    object-fit: cover;
+  }
+
+
+  /* ---------- Gallery ---------- */
+
+  .gallery-container {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px;
+  }
+
+  .gallery-item,
+  .gallery-item img {
+    width: 100%;
+  }
+
+  .gallery-container img {
+    height: 170px;
+    padding: 4px;
+    border-radius: 15px;
+    animation: none;
+  }
+
+
+  /* ---------- BMI ---------- */
+
+  .bmi-section {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .bmi-card {
+    width: 100%;
+    max-width: 500px;
+    padding: 24px 16px;
+    border-radius: 20px;
+  }
+
+  .bmi-card h2 {
+    font-size: 27px;
+  }
+
+  .bmi-card input,
+  .bmi-card button {
+    min-height: 48px;
+    font-size: 16px;
+  }
+
+
+  /* ---------- Planner / Diet ---------- */
+
+  .planner-buttons,
+  .diet-buttons,
+  .food-type-buttons {
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .planner-buttons button,
+  .diet-buttons button,
+  .food-type-buttons button {
+    width: 100%;
+    min-height: 48px;
+    padding: 13px 16px;
+    font-size: 15px;
+  }
+
+  .plan-card,
+  .diet-card {
+    width: 100%;
+    padding: 20px 16px;
+    border-radius: 18px;
+  }
+
+  .diet-card p {
+    font-size: 15px;
+  }
+
+
+  /* ---------- Contact ---------- */
+
+  .contact-info {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .info-card {
+    padding: 20px 16px;
+  }
+
+  .contact-container {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .contact-container input,
+  .contact-container textarea,
+  .send-btn {
+    min-height: 48px;
+    font-size: 16px;
+  }
+
+  .contact-container textarea {
+    min-height: 130px;
+  }
+
+  .social-links {
+    gap: 8px;
+  }
+
+  .social-links a {
+    width: 100%;
+    padding: 11px;
+  }
+
+
+  /* ---------- Footer ---------- */
+
+  .footer {
+    padding:
+      40px
+      16px
+      calc(40px + env(safe-area-inset-bottom));
+  }
+
+  .footer-links {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+
+  /* ---------- Trainer modal ---------- */
+
+  .trainer-modal-overlay,
+  .membership-modal-overlay,
+  .exercise-demo-overlay {
+    align-items: center;
+    padding:
+      max(12px, env(safe-area-inset-top))
+      12px
+      max(12px, env(safe-area-inset-bottom));
+  }
+
+  .trainer-modal {
+    width: 100%;
+    max-width: 520px;
+    max-height: 88svh;
+    overflow-y: auto;
+    padding: 18px 16px 20px;
+    border-radius: 20px;
+  }
+
+  .trainer-modal-img {
+    width: 170px;
+    height: 210px;
+  }
+
+  .trainer-modal-content h2 {
+    font-size: 25px;
+  }
+
+
+  /* ---------- Membership modal ---------- */
+
+  .membership-modal {
+    width: 100%;
+    max-width: 460px;
+    max-height: 88svh;
+    padding: 24px 16px;
+    border-radius: 20px;
+  }
+
+  .membership-form input,
+  .membership-continue-btn {
+    min-height: 48px;
+  }
+
+
+  /* ---------- Exercise modal ---------- */
+
+  .exercise-demo-modal {
+    width: 100%;
+    max-width: 620px;
+    max-height: 88svh;
+    overflow-y: auto;
+    padding: 20px 15px;
+    border-radius: 20px;
+  }
+
+  .exercise-demo-header {
+    gap: 11px;
+    padding-right: 52px;
+    margin-bottom: 18px;
+  }
+
+  .exercise-demo-icon {
+    width: 54px;
+    height: 54px;
+    flex: 0 0 54px;
+    border-radius: 15px;
+    font-size: 27px;
+  }
+
+  .exercise-demo-level {
+    font-size: 10px;
+    padding: 4px 9px;
+  }
+
+  .exercise-demo-header h2 {
+    font-size: 22px;
+    line-height: 1.15;
+  }
+
+  .exercise-demo-header p {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .exercise-demo-close,
+  .exercise-demo-back {
+    width: 40px;
+    height: 40px;
+    font-size: 23px;
+  }
+
+  .exercise-demo-actions {
+    top: 11px;
+    right: 12px;
+  }
+
+  .exercise-demo-video {
+    height: auto;
+    min-height: 190px;
+    margin-bottom: 16px;
+    border-radius: 14px;
+  }
+
+  .exercise-demo-player {
+    width: 100%;
+    max-height: 62svh;
+    min-height: 190px;
+    object-fit: contain;
+    border-radius: 14px;
+  }
+
+  .exercise-demo-info {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .demo-exercise-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .muscle-group-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    margin-top: 18px;
+  }
+
+  .muscle-group-card {
+    min-width: 0;
+    min-height: 105px;
+    padding: 14px 8px;
+    border-radius: 14px;
+  }
+
+  .muscle-group-card span {
+    font-size: 26px;
+  }
+
+  .muscle-group-card strong {
+    font-size: 14px;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .muscle-group-card small {
+    font-size: 10px;
+    text-align: center;
+  }
+
+  .individual-exercise-btn {
+    min-height: 50px;
+    padding: 13px 12px;
+    gap: 8px;
+  }
+
+  .individual-exercise-btn span {
+    min-width: 0;
+    font-size: 13px;
+  }
+
+  .individual-exercise-btn strong {
+    flex-shrink: 0;
+    font-size: 10px;
+  }
+
+  .exercise-list-container {
+    max-height: 50svh;
+    margin-top: 18px;
+  }
+
+
+  /* ---------- Old floating AI button ---------- */
+
+  .ai-floating-btn {
+    right: 14px;
+    bottom: calc(14px + env(safe-area-inset-bottom));
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+  }
+}
+
+
+/* ============================================================
+   iPHONE / SMALL PHONE — up to 430px
+============================================================ */
+@media (max-width: 430px) {
+
+  .navbar {
+    width: calc(100% - 14px);
+    padding-left: 14px;
+    padding-right: 10px;
+  }
+
+  .logo {
+    font-size: 18px;
+  }
+
+  .hero {
+    width: calc(100% - 12px);
+    margin: 6px;
+    padding-left: 13px;
+    padding-right: 13px;
+  }
+
+  .hero-title {
+    font-size: clamp(2.1rem, 12.5vw, 3.2rem) !important;
+  }
+
+  .hero-right,
+  .hero-character-placeholder {
+    height: 345px !important;
+    min-height: 345px;
+  }
+
+  .hero-character-bg {
+    width: 350px;
+    height: 350px;
+  }
+
+  .hero-ring {
+    width: 270px;
+    height: 270px;
+  }
+
+  .hero-ring2 {
+    width: 315px;
+    height: 315px;
+  }
+
+  .hero-ring3 {
+    width: 355px;
+    height: 355px;
+  }
+
+  .hero-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .hero-stat {
+    padding: 13px 7px;
+  }
+
+  .hero-stat h3 {
+    font-size: 22px;
+  }
+
+  .hero-stat p {
+    font-size: 10px;
+  }
+
+  .gallery-container {
+    gap: 8px;
+  }
+
+  .gallery-container img {
+    height: 145px;
+  }
+
+  .exercise-demo-modal {
+    padding: 18px 12px;
+  }
+
+  .exercise-demo-header {
+    padding-right: 47px;
+  }
+
+  .exercise-demo-header h2 {
+    font-size: 20px;
+  }
+
+  .exercise-demo-icon {
+    width: 48px;
+    height: 48px;
+    flex-basis: 48px;
+    font-size: 24px;
+  }
+
+  .muscle-group-card {
+    min-height: 98px;
+    padding: 12px 6px;
+  }
+
+  .muscle-group-card span {
+    font-size: 23px;
+  }
+
+  .muscle-group-card strong {
+    font-size: 12px;
+  }
+
+  .muscle-group-card small {
+    font-size: 9px;
+  }
+
+  .individual-exercise-btn span {
+    font-size: 12px;
+  }
+
+  .individual-exercise-btn strong {
+    font-size: 9px;
+  }
+}
+
+
+/* ============================================================
+   VERY SMALL PHONES — up to 360px
+============================================================ */
+@media (max-width: 360px) {
+
+  .logo {
+    font-size: 16px;
+  }
+
+  .hero {
+    padding-top: 100px;
+  }
+
+  .hero-title {
+    font-size: 2rem !important;
+  }
+
+  .hero-right,
+  .hero-character-placeholder {
+    height: 315px !important;
+    min-height: 315px;
+  }
+
+  .hero-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .gallery-container {
+    grid-template-columns: 1fr !important;
+  }
+
+  .gallery-container img {
+    height: 220px;
+  }
+
+  .muscle-group-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .muscle-group-card {
+    min-height: 92px;
+  }
+
+  .exercise-demo-header h2 {
+    font-size: 18px;
+  }
+}
+
+
+/* ============================================================
+   LANDSCAPE PHONES
+============================================================ */
+@media (max-width: 900px) and (orientation: landscape) {
+
+  .navbar {
+    top: 6px;
+  }
+
+  .hero {
+    padding-top: 85px;
+  }
+
+  .hero-content {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .hero-left {
+    width: 48%;
+  }
+
+  .hero-right {
+    width: 52%;
+    height: 360px;
+    min-height: 360px;
+  }
+
+  .hero-character-placeholder {
+    height: 360px !important;
+    min-height: 360px;
+  }
+
+  .hero-title {
+    font-size: clamp(2rem, 7vw, 3.5rem) !important;
+  }
+
+  .hero-buttons {
+    max-width: 360px;
+  }
+
+  .hero-stats {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .exercise-demo-modal,
+  .trainer-modal,
+  .membership-modal {
+    max-height: 92svh;
+  }
+}
+
+
+/* ============================================================
+   REDUCE MOTION — iOS accessibility + battery friendly
+============================================================ */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .hero-character-placeholder canvas {
+    animation: none !important;
+  }
+}
+
+
+/* ============================================================
+   TOUCH DEVICES — remove hover-only surprises
+============================================================ */
+@media (hover: none) and (pointer: coarse) {
+
+  .menu a:hover,
+  .primary-btn:hover,
+  .secondary-btn:hover,
+  .card:hover,
+  .price-card:hover,
+  .exercise-card:hover,
+  .trainer-card:hover,
+  .transformation-card:hover,
+  .testimonial-card:hover,
+  .stat-card:hover,
+  .muscle-group-card:hover,
+  .individual-exercise-btn:hover,
+  .exercise-demo-close:hover,
+  .exercise-demo-back:hover {
+    transform: none;
+  }
+
+  .muscle-group-card:active,
+  .individual-exercise-btn:active,
+  .primary-btn:active,
+  .secondary-btn:active,
+  .send-btn:active,
+  .join-btn:active {
+    transform: scale(.98);
+  }
+}
+
+
+/* ============================================================
+   SAFE-AREA FOOTER / FIXED AI
+============================================================ */
+@supports (padding: env(safe-area-inset-bottom)) {
+
+  .ai-coach-section {
+    bottom: max(8px, env(safe-area-inset-bottom)) !important;
+  }
+
+  .footer {
+    padding-bottom: calc(40px + env(safe-area-inset-bottom));
+  }
+}
+
+
+/* ============================================================
+   FINAL MOBILE AI COACH FIX
+   - Titan/robot stays on RIGHT side
+   - Chat stays fully INSIDE bottom-left
+   - Prevents the AI panel from being pushed/cut off
+============================================================ */
+
+@media (max-width: 768px) {
+
+  .ai-coach-section {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 365px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: visible !important;
+    z-index: 99999 !important;
+  }
+
+  .ai-coach {
+    position: relative !important;
+
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 365px !important;
+
+    overflow: visible !important;
+  }
+
+  /* -------------------------
+     CHAT — LEFT / SAFE AREA
+  ------------------------- */
+
+  .ai-controls {
+    position: absolute !important;
+
+    left: 10px !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: calc(10px + env(safe-area-inset-bottom)) !important;
+
+    width: 215px !important;
+    max-width: calc(100vw - 185px) !important;
+    height: auto !important;
+
+    transform: none !important;
+
+    z-index: 300 !important;
+  }
+
+  .ai-chat-box {
+    width: 215px !important;
+    max-width: 100% !important;
+    height: 285px !important;
+
+    padding: 12px !important;
+    border-radius: 18px !important;
+
+    box-sizing: border-box !important;
+  }
+
+  .ai-talk-box {
+    width: 215px !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .ai-chat-box > .ai-status {
+    font-size: 12px !important;
+    padding: 2px 4px 9px !important;
+  }
+
+  .ai-messages {
+    padding: 9px 3px !important;
+    gap: 7px !important;
+  }
+
+  .ai-message {
+    max-width: 94% !important;
+    font-size: 12px !important;
+    padding: 8px 10px !important;
+  }
+
+  .ai-chat-box form {
+    gap: 6px !important;
+  }
+
+  .ai-chat-box form input {
+    min-width: 0 !important;
+    width: 100% !important;
+    font-size: 12px !important;
+  }
+
+  .ai-buttons {
+    gap: 5px !important;
+    margin-top: 8px !important;
+  }
+
+  .ai-buttons button {
+    min-width: 0 !important;
+    padding: 8px 6px !important;
+    font-size: 11px !important;
+  }
+
+  /* -------------------------
+     TITAN — RIGHT SIDE
+  ------------------------- */
+
+  .ai-robot-layer {
+    position: absolute !important;
+
+    top: -55px !important;
+    right: -12px !important;
+    left: auto !important;
+
+    width: 175px !important;
+    height: 350px !important;
+
+    overflow: visible !important;
+
+    z-index: 400 !important;
+    pointer-events: none !important;
+  }
+
+  .ai-robot-layer canvas {
+    position: absolute !important;
+
+    top: 0 !important;
+    right: 0 !important;
+    left: auto !important;
+
+    width: 175px !important;
+    height: 350px !important;
+
+    display: block !important;
+    background: transparent !important;
+
+    pointer-events: none !important;
+  }
+
+  /* Don't let old tablet/mobile rules move the robot back to center. */
+  .ai-coach-section,
+  .ai-coach,
+  .ai-controls,
+  .ai-robot-layer,
+  .ai-robot-layer canvas {
+    max-width: 100vw !important;
+  }
+}
+
+
+/* ============================================================
+   SMALL PHONES — 430px and below
+============================================================ */
+
+@media (max-width: 430px) {
+
+  .ai-coach-section {
+    height: 335px !important;
+  }
+
+  .ai-coach {
+    height: 335px !important;
+  }
+
+  .ai-controls {
+    left: 8px !important;
+    bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+
+    width: 195px !important;
+    max-width: calc(100vw - 170px) !important;
+  }
+
+  .ai-chat-box {
+    width: 195px !important;
+    height: 255px !important;
+    padding: 10px !important;
+    border-radius: 16px !important;
+  }
+
+  .ai-talk-box {
+    width: 195px !important;
+  }
+
+  .ai-robot-layer {
+    top: -48px !important;
+    right: -10px !important;
+
+    width: 160px !important;
+    height: 320px !important;
+  }
+
+  .ai-robot-layer canvas {
+    width: 160px !important;
+    height: 320px !important;
+  }
+
+  .ai-buttons button {
+    font-size: 10px !important;
+    padding: 7px 4px !important;
+  }
+}
+
+
+/* ============================================================
+   VERY SMALL PHONES — 360px and below
+============================================================ */
+
+@media (max-width: 360px) {
+
+  .ai-coach-section {
+    height: 305px !important;
+  }
+
+  .ai-coach {
+    height: 305px !important;
+  }
+
+  .ai-controls {
+    left: 6px !important;
+    width: 175px !important;
+    max-width: calc(100vw - 155px) !important;
+  }
+
+  .ai-chat-box {
+    width: 175px !important;
+    height: 225px !important;
+    padding: 8px !important;
+  }
+
+  .ai-talk-box {
+    width: 175px !important;
+  }
+
+  .ai-robot-layer {
+    top: -42px !important;
+    right: -8px !important;
+    width: 145px !important;
+    height: 290px !important;
+  }
+
+  .ai-robot-layer canvas {
+    width: 145px !important;
+    height: 290px !important;
+  }
+}
+
+
+/* ============================================================
+   iOS / ANDROID SAFE-AREA
+============================================================ */
+
+@supports (padding: env(safe-area-inset-bottom)) {
+  .ai-coach-section {
+    padding-bottom: env(safe-area-inset-bottom) !important;
+  }
+}
+
+/* ============================================================
+   DEFINITIVE PHONE LAYOUT — TITAN AI
+   Robot = RIGHT / LOWER SIDE
+   Chat = LEFT / LOWER SIDE
+============================================================ */
+@media (max-width: 768px) {
+  .ai-coach-section {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 300px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    z-index: 99999 !important;
+    pointer-events: none !important;
+  }
+
+  .ai-coach {
+    position: relative !important;
+    width: 100vw !important;
+    height: 300px !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    pointer-events: none !important;
+  }
+
+  .ai-controls {
+    position: absolute !important;
+    left: 8px !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+    width: 200px !important;
+    max-width: 52vw !important;
+    height: auto !important;
+    transform: none !important;
+    z-index: 500 !important;
+    pointer-events: auto !important;
+  }
+
+  .ai-chat-box {
+    position: relative !important;
+    width: 200px !important;
+    max-width: 100% !important;
+    height: 270px !important;
+    padding: 10px !important;
+    box-sizing: border-box !important;
+    border-radius: 17px !important;
+  }
+
+  .ai-talk-box {
+    width: 200px !important;
+    max-width: 100% !important;
+  }
+
+  .ai-language { margin-bottom: 7px !important; }
+  .ai-language label { font-size: 11px !important; margin-bottom: 4px !important; }
+  .ai-language select { height: 32px !important; font-size: 11px !important; }
+  .ai-status { font-size: 11px !important; }
+
+  .ai-chat-box > .ai-status {
+    padding: 1px 3px 7px !important;
+    font-size: 11px !important;
+  }
+
+  .ai-messages {
+    padding: 8px 2px !important;
+    gap: 6px !important;
+  }
+
+  .ai-message {
+    max-width: 94% !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    padding: 7px 8px !important;
+  }
+
+  .ai-chat-box form { gap: 5px !important; }
+
+  .ai-chat-box form input {
+    min-width: 0 !important;
+    width: 100% !important;
+    font-size: 11px !important;
+    padding: 8px !important;
+  }
+
+  .ai-chat-box form button {
+    flex-shrink: 0 !important;
+    min-width: 34px !important;
+  }
+
+  .ai-buttons {
+    gap: 5px !important;
+    margin-top: 8px !important;
+  }
+
+  .ai-buttons button {
+    min-width: 0 !important;
+    padding: 8px 5px !important;
+    font-size: 10px !important;
+  }
+
+  .ai-robot-layer {
+    position: absolute !important;
+    top: auto !important;
+    bottom: -2px !important;
+    right: 2px !important;
+    left: auto !important;
+    width: 160px !important;
+    height: 285px !important;
+    overflow: visible !important;
+    z-index: 600 !important;
+    pointer-events: none !important;
+  }
+
+  .ai-robot-layer canvas {
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    left: auto !important;
+    bottom: auto !important;
+    width: 160px !important;
+    height: 285px !important;
+    display: block !important;
+    background: transparent !important;
+    pointer-events: none !important;
+  }
+
+  .ai-coach-section,
+  .ai-coach,
+  .ai-robot-layer {
+    margin: 0 !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .ai-coach-section, .ai-coach { height: 285px !important; }
+
+  .ai-controls {
+    left: 7px !important;
+    bottom: calc(7px + env(safe-area-inset-bottom)) !important;
+    width: 185px !important;
+    max-width: 51vw !important;
+  }
+
+  .ai-chat-box {
+    width: 185px !important;
+    height: 255px !important;
+    padding: 9px !important;
+  }
+
+  .ai-talk-box { width: 185px !important; }
+
+  .ai-robot-layer {
+    right: 0 !important;
+    bottom: -2px !important;
+    width: 150px !important;
+    height: 270px !important;
+  }
+
+  .ai-robot-layer canvas {
+    width: 150px !important;
+    height: 270px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .ai-coach-section, .ai-coach { height: 275px !important; }
+
+  .ai-controls {
+    left: 6px !important;
+    width: 170px !important;
+    max-width: 49vw !important;
+  }
+
+  .ai-chat-box {
+    width: 170px !important;
+    height: 245px !important;
+    padding: 8px !important;
+  }
+
+  .ai-talk-box { width: 170px !important; }
+
+  .ai-robot-layer {
+    right: -2px !important;
+    width: 140px !important;
+    height: 260px !important;
+  }
+
+  .ai-robot-layer canvas {
+    width: 140px !important;
+    height: 260px !important;
+  }
+
+  .ai-buttons button {
+    font-size: 9px !important;
+    padding: 7px 4px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .ai-coach-section, .ai-coach { height: 260px !important; }
+
+  .ai-controls {
+    left: 5px !important;
+    width: 155px !important;
+    max-width: 47vw !important;
+  }
+
+  .ai-chat-box {
+    width: 155px !important;
+    height: 230px !important;
+    padding: 7px !important;
+  }
+
+  .ai-talk-box { width: 155px !important; }
+
+  .ai-robot-layer {
+    right: -3px !important;
+    width: 128px !important;
+    height: 245px !important;
+  }
+
+  .ai-robot-layer canvas {
+    width: 128px !important;
+    height: 245px !important;
+  }
+}
+
+/* ============================================================
+   REAL FIX — AICoach IS INSIDE AN INLINE 550x450 MOTION WRAPPER
+   On phones the wrapper must NOT control the layout.
+   The .ai-coach itself becomes the viewport-fixed layer.
+============================================================ */
+
+@media (max-width: 768px) {
+
+  /* The actual AICoach root */
+  .ai-coach {
+    position: fixed !important;
+
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+
+    width: 100vw !important;
+    max-width: 100vw !important;
+
+    height: 300px !important;
+    max-height: 300px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: visible !important;
+
+    z-index: 99999 !important;
+    isolation: isolate !important;
+
+    pointer-events: none !important;
+  }
+
+  /* Chat */
+  .ai-coach .ai-controls {
+    position: absolute !important;
+
+    left: 8px !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+
+    width: 200px !important;
+    max-width: 50vw !important;
+
+    transform: none !important;
+
+    z-index: 1000 !important;
+    pointer-events: auto !important;
+  }
+
+  .ai-coach .ai-chat-box {
+    width: 200px !important;
+    max-width: 100% !important;
+    height: 270px !important;
+
+    box-sizing: border-box !important;
+  }
+
+  .ai-coach .ai-talk-box {
+    width: 200px !important;
+    max-width: 100% !important;
+  }
+
+  /* Robot */
+  .ai-coach .ai-robot-layer {
+    position: absolute !important;
+
+    left: auto !important;
+    top: auto !important;
+
+    right: 0 !important;
+    bottom: 0 !important;
+
+    width: 160px !important;
+    height: 285px !important;
+
+    z-index: 1100 !important;
+    pointer-events: none !important;
+    overflow: visible !important;
+  }
+
+  .ai-coach .ai-robot-layer canvas {
+    position: absolute !important;
+
+    left: auto !important;
+    top: auto !important;
+    right: 0 !important;
+    bottom: 0 !important;
+
+    width: 160px !important;
+    height: 285px !important;
+
+    pointer-events: none !important;
+  }
+}
+
+
+/* ============================================================
+   430px
+============================================================ */
+
+@media (max-width: 430px) {
+
+  .ai-coach {
+    width: 100vw !important;
+    height: 285px !important;
+    max-height: 285px !important;
+  }
+
+  .ai-coach .ai-controls {
+    left: 7px !important;
+    bottom: calc(7px + env(safe-area-inset-bottom)) !important;
+
+    width: 185px !important;
+    max-width: 50vw !important;
+  }
+
+  .ai-coach .ai-chat-box {
+    width: 185px !important;
+    height: 255px !important;
+    padding: 9px !important;
+  }
+
+  .ai-coach .ai-talk-box {
+    width: 185px !important;
+  }
+
+  .ai-coach .ai-robot-layer {
+    right: 0 !important;
+    bottom: 0 !important;
+
+    width: 150px !important;
+    height: 270px !important;
+  }
+
+  .ai-coach .ai-robot-layer canvas {
+    right: 0 !important;
+    bottom: 0 !important;
+
+    width: 150px !important;
+    height: 270px !important;
+  }
+}
+
+
+/* ============================================================
+   390px
+============================================================ */
+
+@media (max-width: 390px) {
+
+  .ai-coach {
+    height: 275px !important;
+    max-height: 275px !important;
+  }
+
+  .ai-coach .ai-controls {
+    left: 6px !important;
+    width: 170px !important;
+    max-width: 49vw !important;
+  }
+
+  .ai-coach .ai-chat-box {
+    width: 170px !important;
+    height: 245px !important;
+    padding: 8px !important;
+  }
+
+  .ai-coach .ai-talk-box {
+    width: 170px !important;
+  }
+
+  .ai-coach .ai-robot-layer {
+    right: 0 !important;
+    bottom: 0 !important;
+
+    width: 140px !important;
+    height: 260px !important;
+  }
+
+  .ai-coach .ai-robot-layer canvas {
+    width: 140px !important;
+    height: 260px !important;
+  }
+}
+
+
+/* ============================================================
+   360px
+============================================================ */
+
+@media (max-width: 360px) {
+
+  .ai-coach {
+    height: 260px !important;
+    max-height: 260px !important;
+  }
+
+  .ai-coach .ai-controls {
+    left: 5px !important;
+    width: 155px !important;
+    max-width: 47vw !important;
+  }
+
+  .ai-coach .ai-chat-box {
+    width: 155px !important;
+    height: 230px !important;
+    padding: 7px !important;
+  }
+
+  .ai-coach .ai-talk-box {
+    width: 155px !important;
+  }
+
+  .ai-coach .ai-robot-layer {
+    right: 0 !important;
+    bottom: 0 !important;
+
+    width: 128px !important;
+    height: 245px !important;
+  }
+
+  .ai-coach .ai-robot-layer canvas {
+    width: 128px !important;
+    height: 245px !important;
+  }
+}

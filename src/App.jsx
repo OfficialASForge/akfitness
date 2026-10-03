@@ -5,9 +5,29 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import AnimatedCounter from "./components/AnimatedCounter";
 import emailjs from "@emailjs/browser";
-import { div } from "framer-motion/client";
 import { motion, AnimatePresence } from "framer-motion";
 import AICoach from "./components/AICoach";
+import { supabase } from "../lib/supabase";
+
+const API_BASE = import.meta.env.DEV
+  ? "http://localhost:3001"
+  : "";
+
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (window.Razorpay) {
+      resolve(true);
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+
+    document.body.appendChild(script);
+  });
+};
 
 function App() {
 const [loading, setLoading] = useState(true);
@@ -15,10 +35,8 @@ const [menuOpen, setMenuOpen] = useState(false);
 const [height, setHeight] = useState("");
 const [weight, setWeight] = useState("");
 const [bmi, setBmi] = useState("");
-const [aiOpen, setAiOpen] = useState(false);
+
 const [showTitan, setShowTitan] = useState(false);
-const hasSpoken = useRef(false);
-const welcomeAudio = useRef(null);
 const [scrollProgress, setScrollProgress] = useState(0);
 const [scrolled, setScrolled] = useState(false);
 const [counterTrigger, setCounterTrigger] = useState(0);
@@ -28,10 +46,209 @@ const [expandedProgram, setExpandedProgram] = useState(null);
 const [name, setName] = useState("");
 const [selectedTrainer, setSelectedTrainer] = useState(null);
 const [selectedMembership, setSelectedMembership] = useState(null);
+const [selectedExercise, setSelectedExercise] = useState(null);
+const [selectedMuscle, setSelectedMuscle] = useState(null);
+const exerciseVideoRef = useRef(null);
 const [phone, setPhone] = useState("");
 const [email, setEmail] = useState("");
 const [message, setMessage] = useState("");
 const [subject, setSubject] = useState("");
+const [paymentLoading, setPaymentLoading] = useState(null);
+
+const handlePayment = async (planId, planName) => {
+  try {
+    setPaymentLoading(planId);
+
+    const loaded = await loadRazorpayScript();
+
+    if (!loaded) {
+      alert(
+        "Razorpay could not load. Please check your internet connection."
+      );
+      setPaymentLoading(null);
+      return;
+    }
+
+    const orderResponse = await fetch(
+      `${API_BASE}/api/create-order`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          planId,
+        }),
+      }
+    );
+
+    const orderData = await orderResponse.json();
+
+    if (!orderResponse.ok || !orderData.success) {
+      throw new Error(
+        orderData.error || "Unable to create payment order."
+      );
+    }
+
+    // Server ke response ke andar actual Razorpay order hai
+    const order = orderData.order;
+
+    if (!order || !order.id || !order.amount) {
+      throw new Error(
+        "Invalid Razorpay order received from server."
+      );
+    }
+
+    const razorpayKey =
+      import.meta.env.VITE_RAZORPAY_KEY_ID;
+
+    if (!razorpayKey) {
+      throw new Error(
+        "Razorpay public key is missing. Check VITE_RAZORPAY_KEY_ID in .env."
+      );
+    }
+
+    const options = {
+      key: razorpayKey,
+
+      // IMPORTANT:
+      // Razorpay amount comes from server-side order
+      amount: order.amount,
+
+      currency: order.currency,
+
+      name: "Official ASForge",
+
+      description: `${planName} Membership`,
+
+      order_id: order.id,
+
+      handler: async function (response) {
+        try {
+          const verifyResponse = await fetch(
+            `${API_BASE}/api/verify-payment`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                razorpay_payment_id:
+                  response.razorpay_payment_id,
+
+                razorpay_order_id:
+                  response.razorpay_order_id,
+
+                razorpay_signature:
+                  response.razorpay_signature,
+              }),
+            }
+          );
+
+          const verifyData =
+            await verifyResponse.json();
+
+          if (
+            verifyResponse.ok &&
+            verifyData.success
+          ) {
+            alert(
+              `Payment successful! ${planName} membership activated.`
+            );
+          } else {
+            alert(
+              verifyData.error ||
+                "Payment verification failed."
+            );
+          }
+        } catch (error) {
+          console.error(
+            "Payment verification error:",
+            error
+          );
+
+          alert(
+            "Payment received but verification failed. Please contact support."
+          );
+        } finally {
+          setPaymentLoading(null);
+        }
+      },
+
+      modal: {
+        ondismiss: function () {
+          setPaymentLoading(null);
+        },
+      },
+
+      theme: {
+        color: "#ff4d00",
+      },
+    };
+
+    const razorpay =
+      new window.Razorpay(options);
+
+    razorpay.on(
+      "payment.failed",
+      function (response) {
+        console.error(
+          "Razorpay payment failed:",
+          response.error
+        );
+
+        alert(
+          response.error?.description ||
+            "Payment failed. Please try again."
+        );
+
+        setPaymentLoading(null);
+      }
+    );
+
+    razorpay.open();
+
+  } catch (error) {
+    console.error(
+      "Razorpay error:",
+      error
+    );
+
+    alert(
+      error.message ||
+        "Something went wrong while starting payment."
+    );
+
+    setPaymentLoading(null);
+  }
+};
+
+useEffect(() => {
+  const testSupabaseConnection = async () => {
+    const { error } = await supabase
+      .from("comments")
+      .select("id")
+      .limit(1);
+
+    if (error) {
+      console.error(
+  "❌ Supabase connection failed:",
+  error.message,
+  "| code:",
+  error.code,
+  "| details:",
+  error.details,
+  "| hint:",
+  error.hint
+);
+      return;
+    }
+
+    console.log("✅ Supabase connected successfully!");
+  };
+
+  testSupabaseConnection();
+}, []);
 
 useEffect(() => {
   AOS.init({
@@ -76,26 +293,6 @@ useEffect(() => {
     if (window.scrollY >= aboutTop - 150) {
       setShowTitan(true);
 
-      // Welcome audio sirf first time
-      if (
-        !hasSpoken.current &&
-        welcomeAudio.current &&
-        audioUnlocked
-      ) {
-        hasSpoken.current = true;
-
-        welcomeAudio.current.pause();
-        welcomeAudio.current.currentTime = 0;
-        welcomeAudio.current.volume = 1;
-
-        welcomeAudio.current.load();
-
-        welcomeAudio.current.oncanplaythrough = () => {
-          welcomeAudio.current.play().catch((err) => {
-            console.log("Audio Error:", err);
-          });
-        };
-      }
     } else {
       // About ke upar jaate hi Titan hide
       setShowTitan(false);
@@ -111,6 +308,7 @@ useEffect(() => {
     window.removeEventListener("scroll", handleScroll);
   };
 }, []);
+
 const calculateBMI = () => {
   if (!height || !weight) {
     setBmi("");
@@ -156,7 +354,7 @@ const calculateBMI = () => {
 
         <div className="loader-circle"></div>
 
-        <h1>Aman Singh Fitness</h1>
+        <h1>ASForge Fitness</h1>
 
         <p>Transform Your Body</p>
 
@@ -181,7 +379,7 @@ const calculateBMI = () => {
 
       <nav className={scrolled ? "navbar navbar-scrolled" : "navbar"}>
       <h2 className="logo">
-      <span>Aman</span> FitPro
+      <span>ASForge</span> Fitness
      </h2>
 
   <div
@@ -198,9 +396,19 @@ const calculateBMI = () => {
           <a href="#gallery">Gallery</a>
           <a href="#contact">Contact</a>
         </div>
-        <button className="join-btn">
-        Join Now
-        </button>
+        <button
+  className="join-btn"
+  onClick={() => {
+    document
+      .querySelector(".pricing")
+      ?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+  }}
+>
+  Join Now
+</button>
        </nav>
 
       <section className="hero" id="home">
@@ -748,91 +956,122 @@ excellent guidance.
 
 <div className="pricing-container">
 
-<div className="price-card glass">
+  {/* ================= BASIC ================= */}
 
-<h3>Basic</h3>
+  <div className="price-card glass">
 
-<h1>₹99</h1>
+    <h3>Basic</h3>
 
-<p>Per Month</p>
+    <h1>₹99</h1>
 
-<ul>
-<li>✔️ Workout Plans</li>
-<li>✔️ Nutrition Tips</li>
-<li>✔️ Community Access</li>
-</ul>
+    <p>Per Month</p>
 
-<button
-  onClick={() =>
-    setSelectedMembership({
-      name: "Basic",
-      price: "₹99",
-    })
-  }
->
-  Join Now
-</button>
+    <span className="plan-tag">
+      🌱 Beginner Plan
+    </span>
 
-</div>
-
-
-<div className="price-card premium glass">
-
-<h3>Premium</h3>
-
-<h1>₹149</h1>
-
-<p>Per Month</p>
-
-<ul>
-<li>✔️ Personal Coach</li>
-<li>✔️ Diet Plans</li>
-<li>✔️ Video Sessions</li>
-<li>✔️ 24/7 Support</li>
-</ul>
+    <ul>
+      <li>✔️ AI Workout Plan</li>
+      <li>✔️ Basic Nutrition Guidance</li>
+      <li>✔️ Weekly Workout Schedule</li>
+      <li>✔️ BMI & Fitness Tracking</li>
+      <li>✔️ Titan AI Coach Access</li>
+      <li>✔️ Community Access</li>
+    </ul>
 
 <button
   onClick={() =>
-    setSelectedMembership({
-      name: "Premium",
-      price: "₹149",
-    })
+    handlePayment("basic", "Basic", 99)
   }
+  disabled={paymentLoading === "basic"}
 >
-  Join Now
+  {paymentLoading === "basic"
+    ? "Please wait..."
+    : "Join Now"}
 </button>
 
-</div>
+  </div>
 
 
+  {/* ================= PREMIUM ================= */}
 
-<div className="price-card glass">
+  <div className="price-card premium glass">
 
-<h3>Elite</h3>
+    <span className="popular-plan">
+      ⭐ MOST POPULAR
+    </span>
 
-<h1>₹199</h1>
+    <h3>Premium</h3>
 
-<p>Per Month</p>
+    <h1>₹149</h1>
 
-<ul>
-<li>✔️ 1-on-1 Training</li>
-<li>✔️ Custom Plans</li>
-<li>✔️ Priority Support</li>
-<li>✔️ Lifetime Community</li>
-</ul>
+    <p>Per Month</p>
+
+    <span className="plan-tag">
+      💪 Transformation Plan
+    </span>
+
+    <ul>
+      <li>✔️ Everything in Basic</li>
+      <li>✔️ Personalized Workout Plan</li>
+      <li>✔️ Personalized Diet Plan</li>
+      <li>✔️ Weekly Progress Tracking</li>
+      <li>✔️ Trainer Guidance</li>
+      <li>✔️ Exercise Form Guidance</li>
+      <li>✔️ Priority Support</li>
+    </ul>
 
 <button
   onClick={() =>
-    setSelectedMembership({
-      name: "Elite",
-      price: "₹199",
-    })
+    handlePayment("premium", "Premium", 149)
   }
+  disabled={paymentLoading === "premium"}
 >
-  Join Now
+  {paymentLoading === "premium"
+    ? "Please wait..."
+    : "Join Now"}
 </button>
 
-</div>
+  </div>
+
+
+  {/* ================= ELITE ================= */}
+
+  <div className="price-card glass">
+
+    <h3>Elite</h3>
+
+    <h1>₹199</h1>
+
+    <p>Per Month</p>
+
+    <span className="plan-tag">
+      👑 Personal Coaching
+    </span>
+
+    <ul>
+      <li>✔️ Everything in Premium</li>
+      <li>✔️ 1-on-1 Personal Coaching</li>
+      <li>✔️ Fully Customized Workout</li>
+      <li>✔️ Fully Customized Diet</li>
+      <li>✔️ Weekly Progress Review</li>
+      <li>✔️ Direct Trainer Support</li>
+      <li>✔️ Custom Transformation Strategy</li>
+      <li>✔️ Priority Consultation</li>
+    </ul>
+
+<button
+  onClick={() =>
+    handlePayment("elite", "Elite", 199)
+  }
+  disabled={paymentLoading === "elite"}
+>
+  {paymentLoading === "elite"
+    ? "Please wait..."
+    : "Join Now"}
+</button>
+
+  </div>
 
 </div>
 
@@ -963,52 +1202,12 @@ excellent guidance.
 
           {/* CONTINUE */}
 
-          <button
-            className="membership-continue-btn"
-            onClick={() => {
-
-              if (!name.trim()) {
-                alert("Please enter your name.");
-                return;
-              }
-
-              if (!email.trim()) {
-                alert("Please enter your email.");
-                return;
-              }
-
-              if (!phone.trim()) {
-                alert("Please enter your phone number.");
-                return;
-              }
-
-              setSubject(
-                `Membership Request - ${selectedMembership.name}`
-              );
-
-              setMessage(
-                `I want to join the ${selectedMembership.name} membership plan (${selectedMembership.price}/month).
-
-Name: ${name}
-Email: ${email}
-Phone: ${phone}`
-              );
-
-              setSelectedMembership(null);
-
-              setTimeout(() => {
-                document
-                  .getElementById("contact")
-                  ?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start",
-                  });
-              }, 150);
-
-            }}
-          >
-            Continue →
-          </button>
+         <button
+  className="membership-continue-btn"
+  onClick={handlePayment}
+>
+  Pay {selectedMembership.price} →
+</button>
 
         </div>
 
@@ -1196,9 +1395,15 @@ both online and offline.
         <span>⏱️ 60 Min</span>
       </div>
 
-      <button className="exercise-btn">
-        Watch Demo →
-      </button>
+<button
+  className="exercise-btn"
+  onClick={() => {
+    setSelectedMuscle("strength");
+    setSelectedExercise(null);
+  }}
+>
+  Watch Demo →
+</button>
 
     </div>
 
@@ -1224,9 +1429,16 @@ both online and offline.
         <span>⏱️ 45 Min</span>
       </div>
 
-      <button className="exercise-btn">
-        Watch Demo →
-      </button>
+<button
+  type="button"
+  className="exercise-btn"
+  onClick={() => {
+    setSelectedExercise(null);
+    setSelectedMuscle("weightlifting");
+  }}
+>
+  Watch Demo →
+</button>
 
     </div>
 
@@ -1252,9 +1464,16 @@ both online and offline.
         <span>⏱️ 30 Min</span>
       </div>
 
-      <button className="exercise-btn">
-        Watch Demo →
-      </button>
+<button
+  type="button"
+  className="exercise-btn"
+  onClick={() => {
+    setSelectedExercise(null);
+    setSelectedMuscle("cardio");
+  }}
+>
+  Watch Demo →
+</button>
 
     </div>
 
@@ -1713,6 +1932,779 @@ Let's Build Your Dream Physique Together 💪
   )}
 </AnimatePresence>
 
+{/* =====================================================
+    EXERCISE LIBRARY + VIDEO MODALS
+    ===================================================== */}
+
+<AnimatePresence>
+
+  {/* ===================== STRENGTH LIBRARY ===================== */}
+  {selectedMuscle === "strength" && !selectedExercise && (
+    <motion.div
+      className="exercise-demo-overlay"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={() => setSelectedMuscle(null)}
+    >
+      <motion.div
+        className="exercise-demo-modal"
+        initial={{ opacity: 0, scale: 0.85, y: 40 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.85, y: 40 }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          type="button"
+          className="exercise-demo-close"
+          onClick={() => setSelectedMuscle(null)}
+          aria-label="Close"
+        >
+          ×
+        </button>
+
+        <div className="exercise-demo-header">
+          <div className="exercise-demo-icon">💪</div>
+          <div>
+            <span className="exercise-demo-level">STRENGTH TRAINING</span>
+            <h2>Choose Muscle Group</h2>
+            <p>Select a muscle group to explore exercises.</p>
+          </div>
+        </div>
+
+        <div className="muscle-group-grid">
+          <button type="button" className="muscle-group-card" onClick={() => setSelectedMuscle("chest")}>
+            <span>🏋️</span><strong>Chest</strong><small>6 Exercises</small>
+          </button>
+          <button type="button" className="muscle-group-card" onClick={() => setSelectedMuscle("back")}>
+            <span>💪</span><strong>Back</strong><small>6 Exercises</small>
+          </button>
+          <button type="button" className="muscle-group-card" onClick={() => setSelectedMuscle("shoulders")}>
+            <span>🔥</span><strong>Shoulders</strong><small>5 Exercises</small>
+          </button>
+          <button type="button" className="muscle-group-card" onClick={() => setSelectedMuscle("biceps")}>
+            <span>💪</span><strong>Biceps</strong><small>5 Exercises</small>
+          </button>
+          <button type="button" className="muscle-group-card" onClick={() => setSelectedMuscle("triceps")}>
+            <span>⚡</span><strong>Triceps</strong><small>5 Exercises</small>
+          </button>
+          <button type="button" className="muscle-group-card" onClick={() => setSelectedMuscle("legs")}>
+            <span>🦵</span><strong>Legs</strong><small>7 Exercises</small>
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  )}
+
+{/* ===================== WEIGHT LIFTING LIBRARY ===================== */}
+{selectedMuscle === "weightlifting" && !selectedExercise && (
+  <motion.div
+    className="exercise-demo-overlay"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    onClick={() => setSelectedMuscle(null)}
+  >
+    <motion.div
+      className="exercise-demo-modal"
+      initial={{ opacity: 0, scale: 0.85, y: 40 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.85, y: 40 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      onClick={(e) => e.stopPropagation()}
+    >
+
+      <button
+        type="button"
+        className="exercise-demo-close"
+        onClick={() => setSelectedMuscle(null)}
+        aria-label="Close"
+      >
+        ×
+      </button>
+
+      <div className="exercise-demo-header">
+        <div className="exercise-demo-icon">🏋️</div>
+
+        <div>
+          <span className="exercise-demo-level">
+            POWERLIFTING
+          </span>
+
+          <h2>Weight Lifting</h2>
+
+          <p>Select an exercise to watch its demo.</p>
+        </div>
+      </div>
+
+      <div className="muscle-group-grid">
+
+        {/* DEADLIFT */}
+        <button
+          type="button"
+          className="muscle-group-card"
+          onClick={() => {
+            setSelectedExercise({
+              title: "Deadlift",
+              icon: "🏋️",
+              level: "POWERLIFTING",
+              duration: "10 Min",
+              focus: "Full Body Strength",
+              video: "/videos/deadlift-weight.mp4",
+            });
+          }}
+        >
+          <span>🏋️</span>
+          <strong>Deadlift</strong>
+          <small>Full Body Strength</small>
+        </button>
+
+
+        {/* BENCH PRESS */}
+        <button
+          type="button"
+          className="muscle-group-card"
+          onClick={() => {
+            setSelectedExercise({
+              title: "Bench Press",
+              icon: "💪",
+              level: "POWERLIFTING",
+              duration: "10 Min",
+              focus: "Chest Strength",
+              video: "/videos/bench-press-weight.mp4",
+            });
+          }}
+        >
+          <span>💪</span>
+          <strong>Bench Press</strong>
+          <small>Chest Strength</small>
+        </button>
+
+
+        {/* SQUATS */}
+        <button
+          type="button"
+          className="muscle-group-card"
+          onClick={() => {
+            setSelectedExercise({
+              title: "Squats",
+              icon: "🦵",
+              level: "POWERLIFTING",
+              duration: "10 Min",
+              focus: "Leg Strength",
+              video: "/videos/squats-weight.mp4",
+            });
+          }}
+        >
+          <span>🦵</span>
+          <strong>Squats</strong>
+          <small>Leg Strength</small>
+        </button>
+
+
+        {/* OVERHEAD PRESS */}
+        <button
+          type="button"
+          className="muscle-group-card"
+          onClick={() => {
+            setSelectedExercise({
+              title: "Overhead Press",
+              icon: "🔥",
+              level: "POWERLIFTING",
+              duration: "10 Min",
+              focus: "Shoulder Strength",
+              video: "/videos/overhead-press-weight.mp4",
+            });
+          }}
+        >
+          <span>🔥</span>
+          <strong>Overhead Press</strong>
+          <small>Shoulder Strength</small>
+        </button>
+
+
+        {/* BARBELL ROWS */}
+        <button
+          type="button"
+          className="muscle-group-card"
+          onClick={() => {
+            setSelectedExercise({
+              title: "Barbell Rows",
+              icon: "⚡",
+              level: "POWERLIFTING",
+              duration: "10 Min",
+              focus: "Back Strength",
+              video: "/videos/barbell-rows-weight.mp4",
+            });
+          }}
+        >
+          <span>⚡</span>
+          <strong>Barbell Rows</strong>
+          <small>Back Strength</small>
+        </button>
+
+      </div>
+    </motion.div>
+  </motion.div>
+)}
+
+{/* ===================== CARDIO LIBRARY ===================== */}
+{selectedMuscle === "cardio" && !selectedExercise && (
+  <motion.div
+    className="exercise-demo-overlay"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    onClick={() => setSelectedMuscle(null)}
+  >
+    <motion.div
+      className="exercise-demo-modal"
+      initial={{ opacity: 0, scale: 0.85, y: 40 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.85, y: 40 }}
+      transition={{ duration: 0.35 }}
+      onClick={(e) => e.stopPropagation()}
+    >
+
+      {/* CLOSE */}
+      <button
+        type="button"
+        className="exercise-demo-close"
+        onClick={() => setSelectedMuscle(null)}
+        aria-label="Close"
+      >
+        ×
+      </button>
+
+      {/* HEADER */}
+      <div className="exercise-demo-header">
+        <div className="exercise-demo-icon">
+          ❤️
+        </div>
+
+        <div>
+          <span className="exercise-demo-level">
+            CARDIO
+          </span>
+
+          <h2>
+            CARDIO WORKOUTS
+          </h2>
+
+          <p>
+            Select a workout to watch its demo.
+          </p>
+        </div>
+      </div>
+
+      {/* CARDIO BOXES */}
+      <div className="muscle-group-grid">
+
+        {/* RUNNING */}
+        <button
+          type="button"
+          className="muscle-group-card"
+          onClick={() =>
+            setSelectedExercise({
+              title: "Running",
+              icon: "🏃",
+              level: "CARDIO",
+              duration: "30 Min",
+              focus: "Endurance",
+              video: "/videos/running-cardio.mp4",
+            })
+          }
+        >
+          <span>🏃</span>
+          <strong>Running</strong>
+          <small>Endurance</small>
+        </button>
+
+        {/* CYCLING */}
+        <button
+          type="button"
+          className="muscle-group-card"
+          onClick={() =>
+            setSelectedExercise({
+              title: "Cycling",
+              icon: "🚴",
+              level: "CARDIO",
+              duration: "30 Min",
+              focus: "Endurance",
+              video: "/videos/cycling-cardio.mp4",
+            })
+          }
+        >
+          <span>🚴</span>
+          <strong>Cycling</strong>
+          <small>Endurance</small>
+        </button>
+
+        {/* JUMP ROPE */}
+        <button
+          type="button"
+          className="muscle-group-card"
+          onClick={() =>
+            setSelectedExercise({
+              title: "Jump Rope",
+              icon: "🪢",
+              level: "CARDIO",
+              duration: "20 Min",
+              focus: "Cardio Conditioning",
+              video: "/videos/jump-rope-cardio.mp4",
+            })
+          }
+        >
+          <span>🪢</span>
+          <strong>Jump Rope</strong>
+          <small>Cardio Conditioning</small>
+        </button>
+
+        {/* HIIT */}
+        <button
+          type="button"
+          className="muscle-group-card"
+          onClick={() =>
+            setSelectedExercise({
+              title: "HIIT Workout",
+              icon: "🔥",
+              level: "CARDIO",
+              duration: "20 Min",
+              focus: "High Intensity",
+              video: "/videos/hiit-workout-cardio.mp4",
+            })
+          }
+        >
+          <span>🔥</span>
+          <strong>HIIT Workout</strong>
+          <small>High Intensity</small>
+        </button>
+
+        {/* TREADMILL */}
+        <button
+          type="button"
+          className="muscle-group-card"
+          onClick={() =>
+            setSelectedExercise({
+              title: "Treadmill",
+              icon: "🏃",
+              level: "CARDIO",
+              duration: "30 Min",
+              focus: "Cardio Fitness",
+              video: "/videos/treadmill-cardio.mp4",
+            })
+          }
+        >
+          <span>🏃</span>
+          <strong>Treadmill</strong>
+          <small>Cardio Fitness</small>
+        </button>
+
+        {/* SIX PACK / ABS */}
+        <button
+          type="button"
+          className="muscle-group-card"
+          onClick={() => {
+            setSelectedExercise(null);
+            setSelectedMuscle("abs");
+          }}
+        >
+          <span>💥</span>
+          <strong>Six-Pack / Abs</strong>
+          <small>Abs Workout</small>
+        </button>
+
+      </div>
+    </motion.div>
+  </motion.div>
+)}
+
+{/* ===================== ABS EXERCISE LIST ===================== */}
+{selectedMuscle === "abs" && !selectedExercise && (
+  <motion.div
+    className="exercise-demo-overlay"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    onClick={() => setSelectedMuscle(null)}
+  >
+    <motion.div
+      className="exercise-demo-modal"
+      initial={{ opacity: 0, scale: 0.85, y: 40 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.85, y: 40 }}
+      transition={{
+        duration: 0.35,
+        ease: "easeOut",
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
+
+      {/* BACK TO CARDIO */}
+      <button
+        type="button"
+        className="exercise-demo-close"
+        onClick={() => setSelectedMuscle("cardio")}
+        aria-label="Back to Cardio"
+      >
+        ←
+      </button>
+
+      {/* HEADER */}
+      <div className="exercise-demo-header">
+
+        <div className="exercise-demo-icon">
+          💥
+        </div>
+
+        <div>
+          <span className="exercise-demo-level">
+            SIX-PACK
+          </span>
+
+          <h2>
+            ABS EXERCISES
+          </h2>
+
+          <p>
+            Choose an exercise to watch its demo.
+          </p>
+        </div>
+
+      </div>
+
+      {/* ABS EXERCISE LIST */}
+      <div className="exercise-list-container">
+
+        {/* ================= CRUNCHES ================= */}
+        <button
+          type="button"
+          className="individual-exercise-btn"
+          onClick={() =>
+            setSelectedExercise({
+              title: "Crunches",
+              icon: "🔥",
+              level: "ABS",
+              duration: "10 Min",
+              focus: "Upper Abs",
+              video: "/videos/crunches-abs.mp4",
+            })
+          }
+        >
+          <span>
+            🔥 Crunches
+          </span>
+
+          <strong>
+            ▶ Watch Demo
+          </strong>
+        </button>
+
+
+        {/* ================= LEG RAISES ================= */}
+        <button
+          type="button"
+          className="individual-exercise-btn"
+          onClick={() =>
+            setSelectedExercise({
+              title: "Leg Raises",
+              icon: "🦵",
+              level: "ABS",
+              duration: "10 Min",
+              focus: "Lower Abs",
+              video: "/videos/leg-raises-abs.mp4",
+            })
+          }
+        >
+          <span>
+            🦵 Leg Raises
+          </span>
+
+          <strong>
+            ▶ Watch Demo
+          </strong>
+        </button>
+
+
+        {/* ================= BICYCLE CRUNCHES ================= */}
+        <button
+          type="button"
+          className="individual-exercise-btn"
+          onClick={() =>
+            setSelectedExercise({
+              title: "Bicycle Crunches",
+              icon: "🚴",
+              level: "ABS",
+              duration: "10 Min",
+              focus: "Core & Obliques",
+              video: "/videos/bicycle-crunches-abs.mp4",
+            })
+          }
+        >
+          <span>
+            🚴 Bicycle Crunches
+          </span>
+
+          <strong>
+            ▶ Watch Demo
+          </strong>
+        </button>
+
+
+        {/* ================= MOUNTAIN CLIMBERS ================= */}
+        <button
+          type="button"
+          className="individual-exercise-btn"
+          onClick={() =>
+            setSelectedExercise({
+              title: "Mountain Climbers",
+              icon: "⛰️",
+              level: "ABS",
+              duration: "10 Min",
+              focus: "Core & Cardio",
+              video: "/videos/mountain-climbers-abs.mp4",
+            })
+          }
+        >
+          <span>
+            ⛰️ Mountain Climbers
+          </span>
+
+          <strong>
+            ▶ Watch Demo
+          </strong>
+        </button>
+
+
+        {/* ================= PLANK ================= */}
+        <button
+          type="button"
+          className="individual-exercise-btn"
+          onClick={() =>
+            setSelectedExercise({
+              title: "Plank",
+              icon: "💪",
+              level: "ABS",
+              duration: "5 Min",
+              focus: "Core Stability",
+              video: "/videos/plank-abs.mp4",
+            })
+          }
+        >
+          <span>
+            💪 Plank
+          </span>
+
+          <strong>
+            ▶ Watch Demo
+          </strong>
+        </button>
+
+      </div>
+
+    </motion.div>
+  </motion.div>
+)}
+
+  {/* ===================== STRENGTH EXERCISE LIST ===================== */}
+  {["chest", "back", "shoulders", "biceps", "triceps", "legs"].includes(selectedMuscle) && !selectedExercise && (
+    <motion.div
+      className="exercise-demo-overlay"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={() => setSelectedMuscle(null)}
+    >
+      <motion.div
+        className="exercise-demo-modal"
+        initial={{ opacity: 0, scale: 0.85, y: 40 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.85, y: 40 }}
+        transition={{ duration: 0.35 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          type="button"
+          className="exercise-demo-close"
+          onClick={() => setSelectedMuscle("strength")}
+          aria-label="Back"
+        >
+          ←
+        </button>
+
+        <div className="exercise-demo-header">
+          <div className="exercise-demo-icon">
+            {selectedMuscle === "chest" ? "🏋️" : selectedMuscle === "back" ? "💪" : selectedMuscle === "shoulders" ? "🔥" : selectedMuscle === "biceps" ? "💪" : selectedMuscle === "triceps" ? "⚡" : "🦵"}
+          </div>
+          <div>
+            <span className="exercise-demo-level">{selectedMuscle.toUpperCase()}</span>
+            <h2>
+              {selectedMuscle === "chest" ? "Chest Exercises" : selectedMuscle === "back" ? "Back Exercises" : selectedMuscle === "shoulders" ? "Shoulder Exercises" : selectedMuscle === "biceps" ? "Biceps Exercises" : selectedMuscle === "triceps" ? "Triceps Exercises" : "Leg Exercises"}
+            </h2>
+            <p>Choose an exercise to watch its demo.</p>
+          </div>
+        </div>
+
+        <div className="exercise-list-container">
+          {selectedMuscle === "chest" && [
+            "Barbell Bench Press", "Incline Barbell Bench Press", "Chest Fly", "Cable Crossover", "Decline Bench Press", "Push-Ups",
+          ].map((exercise) => (
+            <button type="button" className="individual-exercise-btn" key={exercise} onClick={() => setSelectedExercise({
+              title: exercise, icon: "🏋️", level: "CHEST", duration: "10 Min", focus: "Chest Muscle",
+              video: exercise === "Barbell Bench Press" ? "/videos/bench-press.mp4" : exercise === "Incline Barbell Bench Press" ? "/videos/incline-bench-press.mp4" : exercise === "Chest Fly" ? "/videos/chest-fly.mp4" : exercise === "Cable Crossover" ? "/videos/cable-crossover.mp4" : exercise === "Decline Bench Press" ? "/videos/decline-bench-press.mp4" : exercise === "Push-Ups" ? "/videos/push-ups.mp4" : null,
+            })}>
+              <span>🏋️ {exercise}</span><strong>▶ Watch Demo</strong>
+            </button>
+          ))}
+
+          {selectedMuscle === "back" && [
+            "Lat Pulldown", "Barbell Row", "Seated Cable Row", "Pull-Ups", "One Arm Dumbbell Row", "Deadlift",
+          ].map((exercise) => (
+            <button type="button" className="individual-exercise-btn" key={exercise} onClick={() => setSelectedExercise({
+              title: exercise, icon: "💪", level: "BACK", duration: "10 Min", focus: "Back Muscle",
+              video: exercise === "Lat Pulldown" ? "/videos/lat-pulldown.mp4" : exercise === "Barbell Row" ? "/videos/barbell-row.mp4" : exercise === "Seated Cable Row" ? "/videos/seated-cable-row.mp4" : exercise === "Pull-Ups" ? "/videos/pull-ups.mp4" : exercise === "One Arm Dumbbell Row" ? "/videos/one-arm-dumbbell-row.mp4" : exercise === "Deadlift" ? "/videos/deadlift.mp4" : null,
+            })}>
+              <span>💪 {exercise}</span><strong>▶ Watch Demo</strong>
+            </button>
+          ))}
+
+          {selectedMuscle === "shoulders" && [
+            "Overhead Press", "Lateral Raise", "Front Raise", "Rear Delt Fly", "Arnold Press",
+          ].map((exercise) => (
+            <button type="button" className="individual-exercise-btn" key={exercise} onClick={() => setSelectedExercise({
+              title: exercise, icon: "🔥", level: "SHOULDERS", duration: "10 Min", focus: "Shoulder Muscle",
+              video: exercise === "Overhead Press" ? "/videos/overhead-press.mp4" : exercise === "Lateral Raise" ? "/videos/lateral-raise.mp4" : exercise === "Front Raise" ? "/videos/front-raise.mp4" : exercise === "Rear Delt Fly" ? "/videos/rear-delt-fly.mp4" : exercise === "Arnold Press" ? "/videos/arnold-press.mp4" : null,
+            })}>
+              <span>🔥 {exercise}</span><strong>▶ Watch Demo</strong>
+            </button>
+          ))}
+
+          {selectedMuscle === "biceps" && [
+            "Barbell Curl", "Dumbbell Curl", "Hammer Curl", "Preacher Curl", "Cable Curl",
+          ].map((exercise) => (
+            <button type="button" className="individual-exercise-btn" key={exercise} onClick={() => setSelectedExercise({
+              title: exercise, icon: "💪", level: "BICEPS", duration: "10 Min", focus: "Biceps Muscle",
+              video: exercise === "Barbell Curl" ? "/videos/barbell-curl.mp4" : exercise === "Dumbbell Curl" ? "/videos/dumbbell-curl.mp4" : exercise === "Hammer Curl" ? "/videos/hammer-curl.mp4" : exercise === "Preacher Curl" ? "/videos/preacher-curl.mp4" : exercise === "Cable Curl" ? "/videos/cable-curl.mp4" : null,
+            })}>
+              <span>💪 {exercise}</span><strong>▶ Watch Demo</strong>
+            </button>
+          ))}
+
+          {selectedMuscle === "triceps" && [
+            "Tricep Pushdown", "Reverse Triceps Pushdown", "Rope Triceps Pushdown", "Overhead Extension", "Triceps Dips",
+          ].map((exercise) => (
+            <button type="button" className="individual-exercise-btn" key={exercise} onClick={() => setSelectedExercise({
+              title: exercise, icon: "⚡", level: "TRICEPS", duration: "10 Min", focus: "Triceps Muscle",
+              video: exercise === "Tricep Pushdown" ? "/videos/tricep-pushdown.mp4" : exercise === "Rope Triceps Pushdown" ? "/videos/rope-triceps-pushdown.mp4" : exercise === "Reverse Triceps Pushdown" ? "/videos/reverse-triceps-pushdown.mp4" : exercise === "Overhead Extension" ? "/videos/rope-overhead-extension.mp4" : exercise === "Triceps Dips" ? "/videos/triceps-dips.mp4" : null,
+            })}>
+              <span>⚡ {exercise}</span><strong>▶ Watch Demo</strong>
+            </button>
+          ))}
+
+          {selectedMuscle === "legs" && [
+            "Barbell Squat", "Leg Press", "Walking Lunges", "Leg Extension", "Leg Curl", "Romanian Deadlift", "Calf Raise",
+          ].map((exercise) => (
+            <button type="button" className="individual-exercise-btn" key={exercise} onClick={() => setSelectedExercise({
+              title: exercise, icon: "🦵", level: "LEGS", duration: "10 Min", focus: "Leg Muscle",
+              video: exercise === "Barbell Squat" ? "/videos/barbell-squat.mp4" : exercise === "Leg Press" ? "/videos/leg-press.mp4" : exercise === "Walking Lunges" ? "/videos/dumbbell-walking-lunges.mp4" : exercise === "Leg Extension" ? "/videos/leg-extension.mp4" : exercise === "Leg Curl" ? "/videos/lying-leg-curl.mp4" : exercise === "Romanian Deadlift" ? "/videos/romanian-deadlift.mp4" : exercise === "Calf Raise" ? "/videos/standing-calf-raise.mp4" : null,
+            })}>
+              <span>🦵 {exercise}</span><strong>▶ Watch Demo</strong>
+            </button>
+          ))}
+        </div>
+      </motion.div>
+    </motion.div>
+  )}
+
+  {/* ===================== VIDEO MODAL ===================== */}
+  {selectedExercise && (
+    <motion.div
+      className="exercise-demo-overlay"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={() => {
+        setSelectedExercise(null);
+        setSelectedMuscle(null);
+      }}
+    >
+      <motion.div
+        className="exercise-demo-modal"
+        initial={{ opacity: 0, scale: 0.9, y: 30 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.9, y: 30 }}
+        transition={{ duration: 0.3 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="exercise-demo-actions">
+          <button
+            type="button"
+            className="exercise-demo-back"
+            onClick={() => {
+              setSelectedExercise(null);
+              if (!selectedMuscle) setSelectedMuscle("cardio");
+            }}
+            aria-label="Back"
+          >
+            ←
+          </button>
+          <button
+            type="button"
+            className="exercise-demo-close"
+            onClick={() => {
+              setSelectedExercise(null);
+              setSelectedMuscle(null);
+            }}
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="exercise-demo-header">
+          <div className="exercise-demo-icon">{selectedExercise.icon}</div>
+          <div>
+            <span className="exercise-demo-level">{selectedExercise.level}</span>
+            <h2>{selectedExercise.title}</h2>
+            <p>{selectedExercise.focus} • {selectedExercise.duration}</p>
+          </div>
+        </div>
+
+        <div className="exercise-demo-video">
+          {selectedExercise.video ? (
+            <video
+              ref={exerciseVideoRef}
+              className="exercise-demo-player"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              onClick={() => {
+                const video = exerciseVideoRef.current;
+                if (!video) return;
+                if (video.paused) video.play();
+                else video.pause();
+              }}
+            >
+              <source src={selectedExercise.video} type="video/mp4" />
+              Your browser does not support video playback.
+            </video>
+          ) : (
+            <div className="demo-video-placeholder">
+              <div className="demo-play-circle">▶</div>
+              <h3>Video Coming Soon</h3>
+              <p>Exercise demonstration will be added here.</p>
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  )}
+
+</AnimatePresence>
+
 <AnimatePresence>
   {showTitan && (
 <motion.div
@@ -1762,7 +2754,7 @@ Transform Your Body • Transform Your Life
 
 <p className="copy">
 
-© 2026 Aman Singh Fitness
+© 2026 ASForge Fitness
 
 </p>
 
